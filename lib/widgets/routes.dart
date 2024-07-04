@@ -14,8 +14,8 @@ final GoRouter routes = GoRouter(
       pageBuilder: (BuildContext context, GoRouterState state) {
         return buildCustomTransition(
           screen: const HomeScreen(),
-          transitionDuration: 300,
-          transitionType: PageTransitionType.leftToRight,
+          transitionDuration: 800,
+          transitionType: PageTransitionType.fade,
           duration: 100,
         );
       },
