@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 import '../../widgets/appbar.dart';
 import '../../widgets/navbar.dart';
+import '../../widgets/tab_button.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -10,18 +10,13 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xff353b4d),
       appBar: buildAppBar(
         context,
         "Home screen",
         [
-          ElevatedButton(
-            onPressed: () => context.go('/'),
-            child: const Text('dashboard'),
-          ),
-          ElevatedButton(
-            onPressed: () => context.go('/notes'),
-            child: const Text('notes'),
-          ),
+          const TabButton(label: 'dashboard', route: '/'),
+          const TabButton(label: 'notes', route: '/notes'),
         ],
       ),
       body: const Center(

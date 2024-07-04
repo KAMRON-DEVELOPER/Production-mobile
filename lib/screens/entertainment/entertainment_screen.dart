@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 
 import '../../widgets/appbar.dart';
 import '../../widgets/navbar.dart';
+import '../../widgets/tab_button.dart';
 
 class EntertainmentScreen extends StatelessWidget {
   const EntertainmentScreen({super.key});
@@ -11,18 +11,16 @@ class EntertainmentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xff353b4d),
       appBar: buildAppBar(
         context,
         "Home screen",
         [
-          ElevatedButton(
-            onPressed: () => context.go('/'),
-            child: const Text('dashboard'),
-          ),
-          ElevatedButton(
-            onPressed: () => context.go('/notes'),
-            child: const Text('notes'),
-          ),
+          const TabButton(label: 'entertainment', route: '/entertainment'),
+          const TabButton(label: 'movies', route: '/movies'),
+          const TabButton(label: 'cartoons', route: '/cartoons'),
+          const TabButton(label: 'series', route: '/series'),
+          const TabButton(label: 'my wishlist', route: '/my-wishlist'),
         ],
       ),
       body: const Center(

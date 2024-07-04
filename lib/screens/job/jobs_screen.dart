@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:iconsax/iconsax.dart';
 
 import '../../widgets/appbar.dart';
 import '../../widgets/navbar.dart';
+import '../../widgets/tab_button.dart';
 
 class JobsScreen extends StatelessWidget {
   const JobsScreen({super.key});
@@ -11,18 +11,14 @@ class JobsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xff353b4d),
       appBar: buildAppBar(
         context,
         "Home screen",
         [
-          ElevatedButton(
-            onPressed: () => context.go('/'),
-            child: const Text('dashboard'),
-          ),
-          ElevatedButton(
-            onPressed: () => context.go('/notes'),
-            child: const Text('notes'),
-          ),
+          const TabButton(label: 'jobs', route: '/jobs'),
+          const TabButton(label: 'my jobs', route: '/my-jobs'),
+          const TabButton(label: 'hire job', route: '/hire-job'),
         ],
       ),
       body: const Center(

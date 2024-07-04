@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hive/hive.dart';
 import 'package:iconsax/iconsax.dart';
 
 class Navbar extends StatefulWidget {
@@ -10,14 +11,26 @@ class Navbar extends StatefulWidget {
 }
 
 class _NavbarState extends State<Navbar> {
-  int _selectedIndex = 0;
+  final _selectedIndex = Hive.box('settingsBox').get('navbarIndex') ?? 0;
 
   void _onTap(int index) {
+    try {
+      print('tried to change index');
+      Hive.box('settingsBox').put('navbarIndex', index);
+      print('changes done');
+    } catch (error) {
+      print('error: $error');
+    }
+    setState(() {
+      print('_selectedIndex = $index;');
+    });
     switch (index) {
       case 0:
+        print('go home');
         context.go('/');
         break;
       case 1:
+        print('go community');
         context.go('/community');
         break;
       case 2:
@@ -33,16 +46,14 @@ class _NavbarState extends State<Navbar> {
         context.go('/ai');
         break;
     }
-    setState(() {
-      _selectedIndex = index;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
+    print('building.......');
     return BottomAppBar(
       height: 64,
-      color: Colors.grey[800],
+      color: const Color(0xff181a20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
@@ -74,20 +85,8 @@ class _NavbarState extends State<Navbar> {
               icon,
               size: 28,
               color: selectedIndex == itemIndex
-                  ? Colors.yellow[900]
-                  : Colors.grey[900],
-            ),
-            AnimatedPositioned(
-              duration: const Duration(milliseconds: 300),
-              bottom: selectedIndex == itemIndex ? 0 : -10,
-              child: Container(
-                height: selectedIndex == itemIndex ? 4 : 0,
-                width: selectedIndex == itemIndex ? 4 : 0,
-                decoration: BoxDecoration(
-                  color: Colors.yellow[900],
-                  shape: BoxShape.circle,
-                ),
-              ),
+                  ? const Color(0xff6e45fe)
+                  : const Color(0xffE3F2FD),
             ),
           ],
         ),

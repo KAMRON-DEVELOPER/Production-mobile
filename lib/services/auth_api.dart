@@ -4,7 +4,7 @@ import 'package:mobile/models/authentication.dart';
 class AuthApiService {
   late Dio _dio;
   final String _baseUrl = 'http://192.168.31.42:8000/api/';
-  // final settingsBox = Hive.box<UsersModel>('settingsBox');
+  // final settingsBox = Hive.box('settingsBox');
 
   AuthApiService() {
     _dio = Dio();
