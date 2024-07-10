@@ -27,23 +27,29 @@ class _NavbarState extends State<Navbar> {
     switch (index) {
       case 0:
         print('go home');
-        context.go('/');
+        // context.go('/');
+        Navigator.pushNamed(context, '/home');
         break;
       case 1:
         print('go community');
-        context.go('/community');
+        // context.go('/community');
+        Navigator.pushNamed(context, '/community');
         break;
       case 2:
-        context.go('/education');
+        // context.go('/education');
+        Navigator.pushNamed(context, '/education');
         break;
       case 3:
-        context.go('/entertainment');
+        // context.go('/entertainment');
+        Navigator.pushNamed(context, '/entertainment');
         break;
       case 4:
-        context.go('/jobs');
+        // context.go('/jobs');
+        Navigator.pushNamed(context, '/jobs');
         break;
       case 5:
-        context.go('/ai');
+        // context.go('/ai');
+        Navigator.pushNamed(context, '/ai');
         break;
     }
   }

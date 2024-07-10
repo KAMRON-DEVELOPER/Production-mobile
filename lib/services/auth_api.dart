@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:mobile/models/authentication.dart';
+import 'package:mobile/models/user.dart';
 
 class AuthApiService {
   late Dio _dio;

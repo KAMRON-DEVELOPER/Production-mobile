@@ -14,9 +14,8 @@ final GoRouter routes = GoRouter(
       pageBuilder: (BuildContext context, GoRouterState state) {
         return buildCustomTransition(
           screen: const HomeScreen(),
-          transitionDuration: 800,
-          transitionType: PageTransitionType.fade,
-          duration: 100,
+          transitionDuration: 3000,
+          transitionType: PageTransitionType.size,
         );
       },
       routes: <RouteBase>[
@@ -30,11 +29,10 @@ final GoRouter routes = GoRouter(
                     create: (context) => AuthenticationBloc(),
                   ),
                 ],
-                child: const RegisterScreen(),
+                child: const LoginScreen(),
               ),
-              transitionDuration: 300,
-              duration: 100,
-              transitionType: PageTransitionType.rightToLeft,
+              transitionDuration: 1000,
+              transitionType: PageTransitionType.fade,
             );
           },
         ),
@@ -50,9 +48,8 @@ final GoRouter routes = GoRouter(
                 ],
                 child: const LoginScreen(),
               ),
-              transitionDuration: 300,
-              duration: 100,
-              transitionType: PageTransitionType.rightToLeft,
+              transitionDuration: 1000,
+              transitionType: PageTransitionType.fade,
             );
           },
         ), //! login
@@ -61,9 +58,8 @@ final GoRouter routes = GoRouter(
           pageBuilder: (BuildContext context, GoRouterState state) {
             return buildCustomTransition(
               screen: const NotesScreen(),
-              transitionDuration: 300,
-              duration: 100,
-              transitionType: PageTransitionType.rightToLeft,
+              transitionDuration: 1000,
+              transitionType: PageTransitionType.fade,
             );
           },
         ), //! notes
@@ -74,9 +70,8 @@ final GoRouter routes = GoRouter(
         pageBuilder: (BuildContext context, GoRouterState state) {
           return buildCustomTransition(
             screen: const CommunityScreen(),
-            transitionDuration: 300,
-            transitionType: PageTransitionType.bottomToTop,
-            duration: 100,
+            transitionDuration: 3000,
+            transitionType: PageTransitionType.size,
           );
         },
         routes: [
@@ -86,7 +81,6 @@ final GoRouter routes = GoRouter(
               return buildCustomTransition(
                   screen: const NewsScreen(),
                   transitionDuration: 300,
-                  duration: 100,
                   transitionType: PageTransitionType.bottomToTop);
             },
           ),
@@ -96,7 +90,6 @@ final GoRouter routes = GoRouter(
               return buildCustomTransition(
                 screen: const NewsDetailScreen(),
                 transitionDuration: 300,
-                duration: 100,
                 transitionType: PageTransitionType.bottomToTop,
               );
             },
@@ -107,7 +100,6 @@ final GoRouter routes = GoRouter(
               return buildCustomTransition(
                   screen: const GroupsScreen(),
                   transitionDuration: 300,
-                  duration: 100,
                   transitionType: PageTransitionType.bottomToTop);
             },
           ),
@@ -117,7 +109,6 @@ final GoRouter routes = GoRouter(
               return buildCustomTransition(
                   screen: const GroupScreen(),
                   transitionDuration: 300,
-                  duration: 100,
                   transitionType: PageTransitionType.bottomToTop);
             },
           ),
@@ -127,7 +118,6 @@ final GoRouter routes = GoRouter(
               return buildCustomTransition(
                   screen: const ChatsScreen(),
                   transitionDuration: 300,
-                  duration: 100,
                   transitionType: PageTransitionType.bottomToTop);
             },
           ),
@@ -137,7 +127,6 @@ final GoRouter routes = GoRouter(
               return buildCustomTransition(
                   screen: const ChatScreen(),
                   transitionDuration: 300,
-                  duration: 100,
                   transitionType: PageTransitionType.bottomToTop);
             },
           ),
@@ -147,7 +136,6 @@ final GoRouter routes = GoRouter(
               return buildCustomTransition(
                   screen: const MyProfileScreen(),
                   transitionDuration: 300,
-                  duration: 100,
                   transitionType: PageTransitionType.bottomToTop);
             },
           ),
@@ -157,15 +145,18 @@ final GoRouter routes = GoRouter(
               return buildCustomTransition(
                   screen: const ProfileScreen(),
                   transitionDuration: 300,
-                  duration: 100,
                   transitionType: PageTransitionType.bottomToTop);
             },
           ),
         ]),
     GoRoute(
         path: '/education',
-        builder: (BuildContext context, GoRouterState state) {
-          return const EducationScreen();
+        pageBuilder: (BuildContext context, GoRouterState state) {
+          return buildCustomTransition(
+            screen: const EducationScreen(),
+            transitionDuration: 3000,
+            transitionType: PageTransitionType.fade,
+          );
         },
         routes: [
           GoRoute(
@@ -207,8 +198,12 @@ final GoRouter routes = GoRouter(
         ]), //! education
     GoRoute(
       path: '/entertainment',
-      builder: (BuildContext context, GoRouterState state) {
-        return const EntertainmentScreen();
+      pageBuilder: (BuildContext context, GoRouterState state) {
+        return buildCustomTransition(
+          screen: const EntertainmentScreen(),
+          transitionDuration: 3000,
+          transitionType: PageTransitionType.fade,
+        );
       },
       routes: <RouteBase>[
         GoRoute(
@@ -257,8 +252,12 @@ final GoRouter routes = GoRouter(
     ),
     GoRoute(
       path: '/jobs',
-      builder: (BuildContext context, GoRouterState state) {
-        return const JobsScreen();
+      pageBuilder: (BuildContext context, GoRouterState state) {
+        return buildCustomTransition(
+          screen: const JobsScreen(),
+          transitionDuration: 3000,
+          transitionType: PageTransitionType.fade,
+        );
       },
       routes: <RouteBase>[
         GoRoute(
@@ -283,8 +282,12 @@ final GoRouter routes = GoRouter(
     ),
     GoRoute(
       path: '/ai',
-      builder: (BuildContext context, GoRouterState state) {
-        return const AiScreen();
+      pageBuilder: (BuildContext context, GoRouterState state) {
+        return buildCustomTransition(
+          screen: const AiScreen(),
+          transitionDuration: 3000,
+          transitionType: PageTransitionType.fade,
+        );
       },
       routes: <RouteBase>[
         GoRoute(
@@ -301,7 +304,6 @@ final GoRouter routes = GoRouter(
 CustomTransitionPage<dynamic> buildCustomTransition({
   required Widget screen,
   required int transitionDuration,
-  required int duration,
   required PageTransitionType transitionType,
 }) {
   return CustomTransitionPage(
@@ -309,10 +311,12 @@ CustomTransitionPage<dynamic> buildCustomTransition({
     transitionDuration: Duration(milliseconds: transitionDuration),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       return PageTransition(
-        type: transitionType,
-        child: child,
-        duration: Duration(milliseconds: duration),
-      ).buildTransitions(context, animation, secondaryAnimation, child);
+              type: transitionType,
+              child: child,
+              duration: Duration(milliseconds: transitionDuration),
+              reverseDuration: Duration(milliseconds: transitionDuration),
+              alignment: Alignment.center)
+          .buildTransitions(context, animation, secondaryAnimation, child);
     },
   );
 }

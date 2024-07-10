@@ -3,8 +3,11 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hive/hive.dart';
 import 'package:mobile/hive/users_adapter.dart';
 import 'package:mobile/hive/users_model.dart';
-import 'package:mobile/widgets/routes.dart';
+import 'package:mobile/provider/theme_provider.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:mobile/screens/screens.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -14,19 +17,11 @@ void main() async {
   Hive.registerAdapter(UsersAdapter());
   await Hive.openBox<UsersModel>('usersBox');
   await Hive.openBox('settingsBox');
-  initialization();
-  runApp(const MyApp());
-}
-
-void initialization() async {
-  print('ready in 3...');
-  await Future.delayed(const Duration(seconds: 1));
-  print('ready in 2...');
-  await Future.delayed(const Duration(seconds: 1));
-  print('ready in 1...');
-  await Future.delayed(const Duration(seconds: 1));
-  print('go!');
+  var settingsBox = Hive.box('settingsBox');
+  String? accessToken = settingsBox.get('accessToken');
+  print("accessToken: $accessToken");
   FlutterNativeSplash.remove();
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -34,10 +29,95 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      title: "NQE",
-      routerConfig: routes,
+    return ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: "NQE",
+            initialRoute: '/home',
+            onGenerateRoute: (settings) {
+              switch (settings.name) {
+                case '/home':
+                  return PageTransition(
+                    child: const HomeScreen(),
+                    type: PageTransitionType.fade,
+                    duration: const Duration(milliseconds: 300),
+                    alignment: Alignment.center,
+                    settings: settings,
+                  );
+                case '/home/notes':
+                  return PageTransition(
+                    child: const NotesScreen(),
+                    type: PageTransitionType.rightToLeft,
+                    duration: const Duration(seconds: 1),
+                    alignment: Alignment.center,
+                    settings: settings,
+                  );
+                case '/home/register':
+                  return PageTransition(
+                    child: const RegisterScreen(),
+                    type: PageTransitionType.fade,
+                    duration: const Duration(milliseconds: 300),
+                    alignment: Alignment.center,
+                    settings: settings,
+                  );
+                case '/home/login':
+                  return PageTransition(
+                    child: const LoginScreen(),
+                    type: PageTransitionType.fade,
+                    duration: const Duration(milliseconds: 300),
+                    alignment: Alignment.center,
+                    settings: settings,
+                  );
+                case '/community':
+                  return PageTransition(
+                    child: const CommunityScreen(),
+                    type: PageTransitionType.fade,
+                    duration: const Duration(milliseconds: 300),
+                    alignment: Alignment.center,
+                    settings: settings,
+                  );
+                case '/education':
+                  return PageTransition(
+                    child: const EducationScreen(),
+                    type: PageTransitionType.fade,
+                    duration: const Duration(milliseconds: 300),
+                    alignment: Alignment.center,
+                    settings: settings,
+                  );
+                case '/entertainment':
+                  return PageTransition(
+                    child: const EntertainmentScreen(),
+                    type: PageTransitionType.fade,
+                    duration: const Duration(milliseconds: 300),
+                    alignment: Alignment.center,
+                    settings: settings,
+                  );
+                case '/jobs':
+                  return PageTransition(
+                    child: const JobsScreen(),
+                    type: PageTransitionType.fade,
+                    duration: const Duration(milliseconds: 300),
+                    alignment: Alignment.center,
+                    settings: settings,
+                  );
+                case '/ai':
+                  return PageTransition(
+                    child: const AiScreen(),
+                    type: PageTransitionType.fade,
+                    duration: const Duration(milliseconds: 300),
+                    alignment: Alignment.center,
+                    settings: settings,
+                  );
+                default:
+                  return null;
+              }
+            },
+          );
+        },
+      ),
     );
   }
 }

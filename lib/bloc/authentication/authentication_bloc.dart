@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mobile/models/authentication.dart';
+import 'package:mobile/models/user.dart';
 import 'package:mobile/services/auth_api.dart';
 import 'authentication_event.dart';
 import 'authentication_state.dart';

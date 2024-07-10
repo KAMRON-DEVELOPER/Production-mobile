@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class TabButton extends StatelessWidget {
   final String label;
@@ -28,7 +27,8 @@ class TabButton extends StatelessWidget {
           ),
         ),
       ),
-      onTap: () => context.go(route),
+      // onTap: () => context.go(route),
+      onTap: () => Navigator.pushNamed(context, route),
     );
   }
 }
