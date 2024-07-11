@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 import '../../provider/theme_provider.dart';
-import '../../widgets/appbar.dart';
-import '../../widgets/navbar.dart';
-import '../../widgets/tab_button.dart';
+import '../../widgets/drawer_widget.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -12,20 +10,13 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    final theme = themeProvider.currentTheme;
 
-    return Scaffold(
-      backgroundColor: theme.canvasColor,
-      appBar: buildAppBar(
-        context,
-        "Home screen",
-        [
-          const TabButton(label: 'dashboard', route: '/home'),
-          const TabButton(label: 'notes', route: '/home/notes'),
-        ],
-      ),
-      body: Center(
+    return buildDrawerWidget(
+      context: context,
+      appBarTitle: 'Home screen',
+      content: Center(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
@@ -39,7 +30,7 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 32),
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(
                   onPressed: () => themeProvider.switchTheme('light'),
@@ -51,7 +42,6 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 20),
                 ElevatedButton(
                   onPressed: () => themeProvider.switchTheme('dark'),
                   child: const Text(
@@ -62,7 +52,6 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 20),
                 ElevatedButton(
                   onPressed: () => themeProvider.switchTheme('black'),
                   child: const Text(
@@ -88,7 +77,6 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: const Navbar(),
     );
   }
 }

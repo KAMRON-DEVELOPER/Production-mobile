@@ -3,7 +3,6 @@ import 'package:iconsax/iconsax.dart';
 
 import '../../widgets/appbar.dart';
 import '../../widgets/navbar.dart';
-import '../../widgets/tab_button.dart';
 
 class EntertainmentScreen extends StatelessWidget {
   const EntertainmentScreen({super.key});
@@ -12,17 +11,7 @@ class EntertainmentScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xff353b4d),
-      appBar: buildAppBar(
-        context,
-        "Home screen",
-        [
-          const TabButton(label: 'entertainment', route: '/entertainment'),
-          const TabButton(label: 'movies', route: '/movies'),
-          const TabButton(label: 'cartoons', route: '/cartoons'),
-          const TabButton(label: 'series', route: '/series'),
-          const TabButton(label: 'my wishlist', route: '/my-wishlist'),
-        ],
-      ),
+      appBar: buildAppBar(context, "Home screen"),
       body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

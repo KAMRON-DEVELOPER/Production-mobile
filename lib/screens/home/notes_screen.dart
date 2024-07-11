@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../services/notes_api.dart';
 import '../../widgets/appbar.dart';
 import '../../widgets/navbar.dart';
-import '../../widgets/tab_button.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class NotesScreen extends StatefulWidget {
@@ -38,14 +37,7 @@ class _NotesScreenState extends State<NotesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xff353b4d),
-      appBar: buildAppBar(
-        context,
-        "Notes screen",
-        [
-          const TabButton(label: 'dashboard', route: '/home'),
-          const TabButton(label: 'notes', route: '/home/notes'),
-        ],
-      ),
+      appBar: buildAppBar(context, "Notes screen"),
       body: MasonryGridView.custom(
         padding: const EdgeInsets.all(12),
         shrinkWrap: true,

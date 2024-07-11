@@ -3,7 +3,9 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hive/hive.dart';
 import 'package:mobile/hive/users_adapter.dart';
 import 'package:mobile/hive/users_model.dart';
+import 'package:mobile/provider/change_active_index_provider.dart';
 import 'package:mobile/provider/theme_provider.dart';
+import 'package:mobile/provider/toggle_settings_provider.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:mobile/screens/screens.dart';
@@ -29,12 +31,27 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ThemeProvider(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => ToggleSettingsProvider()),
+        ChangeNotifierProvider(create: (_) => ChangeActiveIndexProvider()),
+      ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
+            supportedLocales: const [
+              Locale('en', 'US'), // English
+              Locale('uz', 'UZ'), // Uzbek
+              Locale('ru', 'RU'), // Russian
+              Locale('tr', 'TR'), // Turkish
+              Locale('fr', 'FR'), // French
+              Locale('hi', 'IN'), // Hindi (India)
+              Locale('zh', 'CN'), // Chinese
+              Locale('es', 'ES'), // Spanish
+              Locale('pt', 'BR'), // Portuguese
+            ],
             title: "NQE",
             initialRoute: '/home',
             onGenerateRoute: (settings) {

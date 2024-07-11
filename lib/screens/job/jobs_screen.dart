@@ -3,7 +3,6 @@ import 'package:iconsax/iconsax.dart';
 
 import '../../widgets/appbar.dart';
 import '../../widgets/navbar.dart';
-import '../../widgets/tab_button.dart';
 
 class JobsScreen extends StatelessWidget {
   const JobsScreen({super.key});
@@ -12,15 +11,7 @@ class JobsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xff353b4d),
-      appBar: buildAppBar(
-        context,
-        "Home screen",
-        [
-          const TabButton(label: 'jobs', route: '/jobs'),
-          const TabButton(label: 'my jobs', route: '/my-jobs'),
-          const TabButton(label: 'hire job', route: '/hire-job'),
-        ],
-      ),
+      appBar: buildAppBar(context, "Home screen"),
       body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
