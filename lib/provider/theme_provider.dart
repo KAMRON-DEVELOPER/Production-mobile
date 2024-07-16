@@ -1,29 +1,21 @@
 import 'package:flutter/material.dart';
-
+import 'package:hive/hive.dart';
 import '../widgets/theme.dart';
 
 class ThemeProvider extends ChangeNotifier {
-  ThemeData _currentTheme = CustomTheme.lightTheme;
+  late MyTheme _currentTheme;
 
-  ThemeData get currentTheme => _currentTheme;
+  ThemeProvider() {
+    final themeName =
+        Hive.box('settingsBox').get('theme', defaultValue: 'dark');
+    _currentTheme = (CustomTheme.themes[themeName] ?? CustomTheme.themes['dark']) as MyTheme;
+  }
 
-  void switchTheme(String theme) {
-    switch (theme) {
-      case 'light':
-        _currentTheme = CustomTheme.lightTheme;
-        break;
-      case 'dark':
-        _currentTheme = CustomTheme.darkTheme;
-        break;
-      case 'black':
-        _currentTheme = CustomTheme.blackTheme;
-        break;
-      case 'purple':
-        _currentTheme = CustomTheme.purpleTheme;
-        break;
-      default:
-        _currentTheme = CustomTheme.lightTheme;
-    }
+  MyTheme get currentTheme => _currentTheme;
+
+  Future<void> switchTheme(String theme) async {
+    _currentTheme = (CustomTheme.themes[theme] ?? CustomTheme.themes['dark']) as MyTheme;
+    await Hive.box('settingsBox').put('theme', theme);
     notifyListeners();
   }
 }

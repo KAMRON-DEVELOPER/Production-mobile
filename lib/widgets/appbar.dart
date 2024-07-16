@@ -8,12 +8,12 @@ AppBar buildAppBar(BuildContext context, String title) {
   final theme = Provider.of<ThemeProvider>(context).currentTheme;
 
   return AppBar(
-    backgroundColor: theme.appBarTheme.backgroundColor,
+    backgroundColor: theme.background1,
     toolbarHeight: 64,
     centerTitle: true,
     title: Text(
       title,
-      style: const TextStyle(color: Color(0xff6e45fe)),
+      style: TextStyle(color: theme.text2),
     ),
   );
 }

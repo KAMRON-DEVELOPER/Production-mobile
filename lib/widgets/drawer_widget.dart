@@ -106,13 +106,13 @@ Widget buildDrawerWidget({
   final isOpenSettings = context.watch<ToggleSettingsProvider>().isOpen;
 
   return Scaffold(
-    backgroundColor: theme.canvasColor,
+    backgroundColor: theme.background2,
     appBar: buildAppBar(context, appBarTitle),
     body: Stack(
       children: [
-        content,
+        Positioned.fill(child: content),
         const CustomTabBar(),
-        if (isOpenSettings) (const SettingsBar()),
+        if (isOpenSettings) (SettingsBar()),
       ],
     ),
     bottomNavigationBar: const Navbar(),

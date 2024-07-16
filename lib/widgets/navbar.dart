@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:mobile/provider/change_active_index_provider.dart';
 import 'package:mobile/provider/toggle_settings_provider.dart';
+import 'package:mobile/widgets/theme.dart';
 import 'package:provider/provider.dart';
 import '../provider/theme_provider.dart';
 
@@ -14,27 +15,70 @@ class Navbar extends StatelessWidget {
     final changeActiveIndexProvider =
         Provider.of<ChangeActiveIndexProvider>(context);
     final activeIndex = changeActiveIndexProvider.activeIndex;
-    final toggleSettingsProvider = Provider.of<ToggleSettingsProvider>(context, listen: false);
+    final toggleSettingsProvider =
+        Provider.of<ToggleSettingsProvider>(context, listen: false);
 
     print('navbar building...');
     return BottomAppBar(
       height: 64,
-      color: theme.appBarTheme.backgroundColor,
+      color: theme.background1,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildNavbarItem(Iconsax.home_2, 0, activeIndex,
-              changeActiveIndexProvider, toggleSettingsProvider, context),
-          _buildNavbarItem(Iconsax.message, 1, activeIndex,
-              changeActiveIndexProvider, toggleSettingsProvider, context),
-          _buildNavbarItem(Iconsax.book_saved, 2, activeIndex,
-              changeActiveIndexProvider, toggleSettingsProvider, context),
-          _buildNavbarItem(Iconsax.video_play, 3, activeIndex,
-              changeActiveIndexProvider, toggleSettingsProvider, context),
-          _buildNavbarItem(Iconsax.brifecase_cross, 4, activeIndex,
-              changeActiveIndexProvider, toggleSettingsProvider, context),
-          _buildNavbarItem(Iconsax.cpu, 5, activeIndex,
-              changeActiveIndexProvider, toggleSettingsProvider, context),
+          _buildNavbarItem(
+            Iconsax.home_2,
+            0,
+            activeIndex,
+            changeActiveIndexProvider,
+            toggleSettingsProvider,
+            context,
+            theme,
+          ),
+          _buildNavbarItem(
+            Iconsax.message,
+            1,
+            activeIndex,
+            changeActiveIndexProvider,
+            toggleSettingsProvider,
+            context,
+            theme,
+          ),
+          _buildNavbarItem(
+            Iconsax.book_saved,
+            2,
+            activeIndex,
+            changeActiveIndexProvider,
+            toggleSettingsProvider,
+            context,
+            theme,
+          ),
+          _buildNavbarItem(
+            Iconsax.video_play,
+            3,
+            activeIndex,
+            changeActiveIndexProvider,
+            toggleSettingsProvider,
+            context,
+            theme,
+          ),
+          _buildNavbarItem(
+            Iconsax.brifecase_cross,
+            4,
+            activeIndex,
+            changeActiveIndexProvider,
+            toggleSettingsProvider,
+            context,
+            theme,
+          ),
+          _buildNavbarItem(
+            Iconsax.cpu,
+            5,
+            activeIndex,
+            changeActiveIndexProvider,
+            toggleSettingsProvider,
+            context,
+            theme,
+          ),
         ],
       ),
     );
@@ -47,6 +91,7 @@ class Navbar extends StatelessWidget {
     ChangeActiveIndexProvider changeActiveIndexProvider,
     ToggleSettingsProvider toggleSettingsProvider,
     BuildContext context,
+    MyTheme theme,
   ) {
     return GestureDetector(
       onTap: () => {
@@ -63,8 +108,8 @@ class Navbar extends StatelessWidget {
           icon,
           size: 28,
           color: selectedIndex == itemIndex
-              ? const Color(0xff6e45fe)
-              : const Color(0xffE3F2FD),
+              ? theme.text2
+              : theme.text1,
         ),
       ),
     );

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hive/hive.dart';
+import 'package:mobile/bloc/counter/counter_bloc.dart';
+import 'package:mobile/cubit/counter_cubit/counter_cubit.dart';
 import 'package:mobile/hive/users_adapter.dart';
 import 'package:mobile/hive/users_model.dart';
 import 'package:mobile/provider/change_active_index_provider.dart';
@@ -10,6 +13,8 @@ import 'package:page_transition/page_transition.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:mobile/screens/screens.dart';
 import 'package:provider/provider.dart';
+
+import 'cubit/todo_cubit/todo_cubit.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +27,7 @@ void main() async {
   var settingsBox = Hive.box('settingsBox');
   String? accessToken = settingsBox.get('accessToken');
   print("accessToken: $accessToken");
+
   FlutterNativeSplash.remove();
   runApp(const MyApp());
 }
@@ -98,7 +104,10 @@ class MyApp extends StatelessWidget {
                   );
                 case '/education':
                   return PageTransition(
-                    child: const EducationScreen(),
+                    child: BlocProvider(
+                      create: (context) => TodoCubit(),
+                      child: const EducationScreen(),
+                    ),
                     type: PageTransitionType.fade,
                     duration: const Duration(milliseconds: 300),
                     alignment: Alignment.center,
@@ -106,7 +115,10 @@ class MyApp extends StatelessWidget {
                   );
                 case '/entertainment':
                   return PageTransition(
-                    child: const EntertainmentScreen(),
+                    child: BlocProvider(
+                      create: (context) => CounterBloc(),
+                      child: const EntertainmentScreen(),
+                    ),
                     type: PageTransitionType.fade,
                     duration: const Duration(milliseconds: 300),
                     alignment: Alignment.center,
@@ -114,7 +126,10 @@ class MyApp extends StatelessWidget {
                   );
                 case '/jobs':
                   return PageTransition(
-                    child: const JobsScreen(),
+                    child: BlocProvider(
+                      create: (_) => CounterCubit(),
+                      child: const JobsScreen(),
+                    ),
                     type: PageTransitionType.fade,
                     duration: const Duration(milliseconds: 300),
                     alignment: Alignment.center,

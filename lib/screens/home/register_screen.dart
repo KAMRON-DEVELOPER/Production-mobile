@@ -7,7 +7,6 @@ import '../../hive/users_model.dart';
 import '../../provider/theme_provider.dart';
 import '../../services/validator_api.dart';
 import '../../widgets/auth_field.dart';
-import '../../widgets/theme.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -24,6 +23,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final usersBox = Hive.box<UsersModel>('usersBox');
   ValidateApiService validateUsersService = ValidateApiService();
   double socialAuthIconSize = 48;
+  final String currentTheme =
+      Hive.box('settingsBox').get('theme', defaultValue: 'dark');
 
   @override
   void initState() {
@@ -34,15 +35,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Provider.of<ThemeProvider>(context).currentTheme;
-    String twitterxIcon = theme == CustomTheme.lightTheme
+    String twitterxIcon = currentTheme == 'light'
         ? 'assets/icons/twitterxIcon1.svg'
         : 'assets/icons/twitterxIcon.svg';
-    String githubIcon = theme == CustomTheme.lightTheme
+    String githubIcon = currentTheme == 'light'
         ? 'assets/icons/githubIcon1.svg'
         : 'assets/icons/githubIcon.svg';
 
     return Scaffold(
-      backgroundColor: theme.primaryColor,
+      backgroundColor: theme.background1,
       body: SingleChildScrollView(
         child: Container(
           padding: const EdgeInsets.only(left: 32, right: 32),
@@ -169,8 +170,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           fontSize: 16,
                         ),
                       ),
-                      onTap: () =>
-                          Navigator.pushNamed(context, '/home/login'),
+                      onTap: () => Navigator.pushNamed(context, '/home/login'),
                     )
                   ],
                 ),

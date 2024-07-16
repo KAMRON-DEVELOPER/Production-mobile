@@ -1,30 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:iconsax/iconsax.dart';
-
-import '../../widgets/appbar.dart';
-import '../../widgets/navbar.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile/cubit/counter_cubit/counter_cubit.dart';
+import 'package:mobile/widgets/drawer_widget.dart';
 
 class JobsScreen extends StatelessWidget {
   const JobsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xff353b4d),
-      appBar: buildAppBar(context, "Home screen"),
-      body: const Center(
+    return buildDrawerWidget(
+      context: context,
+      appBarTitle: 'Jobs screen',
+      content: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('jobs body'),
-            Icon(
-              Iconsax.brifecase_cross,
-              size: 64,
+            BlocBuilder<CounterCubit, int>(
+              builder: (context, counter) =>
+                  Text('$counter', style: const TextStyle(fontSize: 32)),
             ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+                onPressed: () =>
+                    BlocProvider.of<CounterCubit>(context).increment(),
+                child: const Icon(Icons.add)),
           ],
         ),
       ),
-      bottomNavigationBar: const Navbar(),
     );
   }
 }

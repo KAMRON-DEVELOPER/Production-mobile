@@ -7,7 +7,6 @@ import '../../hive/users_model.dart';
 import '../../provider/theme_provider.dart';
 import '../../services/validator_api.dart';
 import '../../widgets/auth_field.dart';
-import '../../widgets/theme.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -23,6 +22,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final usersBox = Hive.box<UsersModel>('usersBox');
   ValidateApiService validateUsersService = ValidateApiService();
   double socialAuthIconSize = 48;
+  final String currentTheme =
+      Hive.box('settingsBox').get('theme', defaultValue: 'dark');
 
   @override
   void initState() {
@@ -33,15 +34,15 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Provider.of<ThemeProvider>(context).currentTheme;
-    String twitterxIcon = theme == CustomTheme.lightTheme
+    String twitterxIcon = currentTheme == 'light'
         ? 'assets/icons/twitterxIcon1.svg'
         : 'assets/icons/twitterxIcon.svg';
-    String githubIcon = theme == CustomTheme.lightTheme
+    String githubIcon = currentTheme == 'light'
         ? 'assets/icons/githubIcon1.svg'
         : 'assets/icons/githubIcon.svg';
 
     return Scaffold(
-      backgroundColor: theme.primaryColor,
+      backgroundColor: theme.background1,
       body: SingleChildScrollView(
         child: Container(
           height: MediaQuery.of(context).size.height,
