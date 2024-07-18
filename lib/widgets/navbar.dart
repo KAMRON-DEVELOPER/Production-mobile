@@ -12,9 +12,9 @@ class Navbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Provider.of<ThemeProvider>(context).currentTheme;
-    final changeActiveIndexProvider =
-        Provider.of<ChangeActiveIndexProvider>(context);
-    final activeIndex = changeActiveIndexProvider.activeIndex;
+    final activeIndexProvider =
+        Provider.of<ActiveIndexProvider>(context);
+    final activeIndex = activeIndexProvider.activeIndex;
     final toggleSettingsProvider =
         Provider.of<ToggleSettingsProvider>(context, listen: false);
 
@@ -29,7 +29,7 @@ class Navbar extends StatelessWidget {
             Iconsax.home_2,
             0,
             activeIndex,
-            changeActiveIndexProvider,
+            activeIndexProvider,
             toggleSettingsProvider,
             context,
             theme,
@@ -38,7 +38,7 @@ class Navbar extends StatelessWidget {
             Iconsax.message,
             1,
             activeIndex,
-            changeActiveIndexProvider,
+            activeIndexProvider,
             toggleSettingsProvider,
             context,
             theme,
@@ -47,7 +47,7 @@ class Navbar extends StatelessWidget {
             Iconsax.book_saved,
             2,
             activeIndex,
-            changeActiveIndexProvider,
+            activeIndexProvider,
             toggleSettingsProvider,
             context,
             theme,
@@ -56,7 +56,7 @@ class Navbar extends StatelessWidget {
             Iconsax.video_play,
             3,
             activeIndex,
-            changeActiveIndexProvider,
+            activeIndexProvider,
             toggleSettingsProvider,
             context,
             theme,
@@ -65,7 +65,7 @@ class Navbar extends StatelessWidget {
             Iconsax.brifecase_cross,
             4,
             activeIndex,
-            changeActiveIndexProvider,
+            activeIndexProvider,
             toggleSettingsProvider,
             context,
             theme,
@@ -74,7 +74,7 @@ class Navbar extends StatelessWidget {
             Iconsax.cpu,
             5,
             activeIndex,
-            changeActiveIndexProvider,
+            activeIndexProvider,
             toggleSettingsProvider,
             context,
             theme,
@@ -88,7 +88,7 @@ class Navbar extends StatelessWidget {
     IconData icon,
     int itemIndex,
     int selectedIndex,
-    ChangeActiveIndexProvider changeActiveIndexProvider,
+    ActiveIndexProvider changeActiveIndexProvider,
     ToggleSettingsProvider toggleSettingsProvider,
     BuildContext context,
     MyTheme theme,
@@ -108,7 +108,7 @@ class Navbar extends StatelessWidget {
           icon,
           size: 28,
           color: selectedIndex == itemIndex
-              ? theme.text2
+              ? theme.activeTabColor
               : theme.text1,
         ),
       ),

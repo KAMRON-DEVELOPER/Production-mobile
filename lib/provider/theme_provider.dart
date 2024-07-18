@@ -7,14 +7,14 @@ class ThemeProvider extends ChangeNotifier {
 
   ThemeProvider() {
     final themeName =
-        Hive.box('settingsBox').get('theme', defaultValue: 'dark');
-    _currentTheme = (CustomTheme.themes[themeName] ?? CustomTheme.themes['dark']) as MyTheme;
+        Hive.box('settingsBox').get('theme', defaultValue: 'blue');
+    _currentTheme = (CustomTheme.themes[themeName] ?? CustomTheme.themes['blue'])!;
   }
 
   MyTheme get currentTheme => _currentTheme;
 
   Future<void> switchTheme(String theme) async {
-    _currentTheme = (CustomTheme.themes[theme] ?? CustomTheme.themes['dark']) as MyTheme;
+    _currentTheme = (CustomTheme.themes[theme] ?? CustomTheme.themes['blue']) as MyTheme;
     await Hive.box('settingsBox').put('theme', theme);
     notifyListeners();
   }

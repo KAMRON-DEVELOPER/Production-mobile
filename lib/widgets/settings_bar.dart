@@ -1,32 +1,36 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:hive/hive.dart';
+import 'package:mobile/provider/language_provider.dart';
 import 'package:provider/provider.dart';
 import '../provider/theme_provider.dart';
 
 class SettingsBar extends StatelessWidget {
   final String currentTheme =
       Hive.box('settingsBox').get('theme', defaultValue: 'dark');
-  final String currentLanguage =
-      Hive.box('settingsBox').get('language', defaultValue: "o'zbekcha");
+  // final String currentLanguage =
+  //     Hive.box('settingsBox').get('language', defaultValue: "english");
   SettingsBar({super.key});
 
   @override
   Widget build(BuildContext context) {
     final theme = Provider.of<ThemeProvider>(context).currentTheme;
+    final language = Provider.of<LanguageProvider>(context).currentLanguage;
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final languageProvider = Provider.of<LanguageProvider>(context);
     const double itemWidth = 64;
     final List<Map<String, dynamic>> themes = [
-      {"color": Colors.white, "name": 'light'},
-      {"color": Colors.black, "name": 'dark'},
-      {"color": Colors.indigo, "name": 'black'},
-      {"color": Colors.purple, "name": 'purple'},
+      {"color": Colors.white, "name": 'white'},
+      {"color": Colors.blueGrey, "name": 'blue'},
+      {"color": Colors.green, "name": 'green'},
+      {"color": Colors.yellow, "name": 'yellow'},
     ];
     final List<Map<String, dynamic>> languages = [
-      {"icon": Colors.white, "name": "o'zbekcha"},
-      {"icon": Colors.black, "name": 'english'},
-      {"icon": Colors.indigo, "name": 'russian'},
-      {"icon": Colors.purple, "name": 'turkish'},
+      {"icon": "assets/icons/uz-circular.svg", "name": "o'zbekcha"},
+      {"icon": "assets/icons/en-circular.svg", "name": 'english'},
+      {"icon": "assets/icons/ru-circular.svg", "name": 'russian'},
+      {"icon": "assets/icons/tr-circular.svg", "name": 'turkish'},
     ];
 
     return Positioned(
@@ -39,7 +43,7 @@ class SettingsBar extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: theme.background1,
-            borderRadius: BorderRadius.circular(12.0),
+            borderRadius: BorderRadius.circular(16.0),
             boxShadow: const [
               BoxShadow(
                 color: Colors.black26,
@@ -48,20 +52,21 @@ class SettingsBar extends StatelessWidget {
             ],
           ),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               //! Theme
               Container(
-                padding: const EdgeInsets.only(left: 16, right: 16),
+                padding: const EdgeInsets.only(left: 12, right: 12, bottom: 8,),
                 decoration: BoxDecoration(
                   color: theme.background2,
                   borderRadius: BorderRadius.circular(12.0),
                 ),
                 child: Column(
                   children: [
-                    const Text(
+                    Text(
                       'Themes',
-                      style:
-                          TextStyle(fontSize: 20.0, color: Colors.blueAccent),
+                      style: TextStyle(
+                          fontSize: 20.0, color: theme.activeTabColor),
                     ),
                     const SizedBox(height: 8),
                     SizedBox(
@@ -97,7 +102,14 @@ class SettingsBar extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                Text(themes[index]['name']),
+                                Text(
+                                  themes[index]['name'],
+                                  style: TextStyle(
+                                    color: currentTheme == themes[index]['name']
+                                        ? theme.activeTabColor
+                                        : theme.text1,
+                                  ),
+                                ),
                               ],
                             );
                           },
@@ -108,21 +120,21 @@ class SettingsBar extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
 
               //! Languages
               Container(
-                padding: const EdgeInsets.only(left: 16, right: 16),
+                padding: const EdgeInsets.only(left: 12, right: 12, bottom: 8,),
                 decoration: BoxDecoration(
                   color: theme.background2,
                   borderRadius: BorderRadius.circular(12.0),
                 ),
                 child: Column(
                   children: [
-                    const Text(
+                    Text(
                       'Languages',
-                      style:
-                          TextStyle(fontSize: 20.0, color: Colors.blueAccent),
+                      style: TextStyle(
+                          fontSize: 20.0, color: theme.activeTabColor),
                     ),
                     const SizedBox(height: 8),
                     SizedBox(
@@ -140,24 +152,38 @@ class SettingsBar extends StatelessWidget {
                             return Column(
                               children: [
                                 GestureDetector(
-                                  onTap: () => print(languages[index]['name']),
+                                  onTap: () => languageProvider
+                                      .switchLanguage(languages[index]['name']),
                                   child: Container(
                                     width: itemWidth,
                                     height: itemWidth,
                                     decoration: BoxDecoration(
-                                      color: languages[index]['icon'],
+                                      // color: languages[index]['icon'],
                                       shape: BoxShape.circle,
                                       border: Border.all(
-                                        color: currentTheme ==
-                                                themes[index]['name']
-                                            ? Colors.blueAccent
-                                            : Colors.transparent,
+                                        color:
+                                            language == languages[index]['name']
+                                                ? Colors.blueAccent
+                                                : Colors.transparent,
                                         width: 2.0,
                                       ),
                                     ),
+                                    child: SvgPicture.asset(
+                                      languages[index]['icon'],
+                                      height: itemWidth,
+                                      width: itemWidth,
+                                      fit: BoxFit.fill,
+                                    ),
                                   ),
                                 ),
-                                Text(languages[index]['name']),
+                                Text(
+                                  languages[index]['name'],
+                                  style: TextStyle(
+                                    color: language == languages[index]['name']
+                                        ? theme.activeTabColor
+                                        : theme.text1,
+                                  ),
+                                ),
                               ],
                             );
                           },
@@ -166,6 +192,57 @@ class SettingsBar extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
+
+              const SizedBox(height: 12),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: theme.activeTabColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () => Navigator.pushNamed(
+                        context,
+                        '/home/login',
+                      ),
+                      child: const Text(
+                        'Login',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: theme.activeTabColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () => Navigator.pushNamed(
+                        context,
+                        '/home/register',
+                      ),
+                      child: const Text(
+                        'Register',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

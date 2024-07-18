@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class ChangeActiveIndexProvider extends ChangeNotifier {
+class ActiveIndexProvider extends ChangeNotifier {
   int _activeIndex = 0;
   int get activeIndex => _activeIndex;
 

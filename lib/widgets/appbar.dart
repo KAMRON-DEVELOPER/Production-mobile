@@ -13,7 +13,7 @@ AppBar buildAppBar(BuildContext context, String title) {
     centerTitle: true,
     title: Text(
       title,
-      style: TextStyle(color: theme.text2),
+      style: TextStyle(color: theme.activeTabColor),
     ),
   );
 }

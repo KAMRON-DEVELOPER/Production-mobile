@@ -97,7 +97,7 @@ class User {
     );
   }
 
-  Map<String, dynamic> toJsonForRegister(String emailOrPhone) {
+  Map<String, dynamic> toJsonForRegister({required String emailOrPhone}) {
     return {
       'username': username,
       'email_or_phone': emailOrPhone,
@@ -115,10 +115,11 @@ class User {
     );
   }
 
-  Map<String, dynamic> toJsonForLogin() {
+  Map<String, dynamic> toJsonForLogin({required String code}) {
     return {
       'username': username,
       'password': password,
+      'code': code,
     };
   }
 }

@@ -15,7 +15,7 @@ class AuthApiService {
     try {
       Response response = await _dio.post(
         '${_baseUrl}users/register/',
-        data: registerData.toJsonForRegister(),
+        data: registerData,
       );
       print("response.data.toString() : ${response.data.toString()}");
       if (response.statusCode == 201) {
@@ -35,7 +35,7 @@ class AuthApiService {
   Future<User?> login(User loginData) async {
     Response response = await _dio.post(
       '${_baseUrl}users/login/',
-      data: loginData.toJsonForLogin(),
+      data: loginData,
     );
     print("response.data.toString(): ${response.data.toString()}");
     if (response.statusCode == 200) {

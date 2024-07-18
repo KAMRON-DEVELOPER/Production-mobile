@@ -3,15 +3,14 @@ import 'package:hive/hive.dart';
 import 'package:mobile/hive/users_model.dart';
 
 class ValidateApiService {
-  late Dio _dio;
-  final String _baseUrl = 'http://192.168.31.42:8000/api/v1/users/';
+  late final Dio _dio = Dio();
   final usersBox = Hive.box<UsersModel>('usersBox');
+  final String _baseUrl = 'http://192.168.31.42:8000/api/v1/users/';
 
   ValidateApiService() {
-    _dio = Dio();
+    fetchAndStoreUserData();
   }
 
-  //! getAllUserData && store
   Future<void> fetchAndStoreUserData() async {
     await usersBox.clear();
     print('1) USERS: ${usersBox.values}');

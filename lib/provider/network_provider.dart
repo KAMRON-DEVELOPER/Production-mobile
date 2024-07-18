@@ -1,0 +1,52 @@
+import 'dart:async';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/material.dart';
+
+class CheckConnectivityProvider extends ChangeNotifier {
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<List<ConnectivityResult>> _streamSubscription;
+
+  String _status = ' waiting...;';
+  String get status => _status;
+
+  CheckConnectivityProvider() {
+    checkConnectivity();
+  }
+
+  void checkConnectivity() async {
+    var connectionResult = await _connectivity.checkConnectivity();
+    print('connectivityResult: ${connectionResult.toString()}');
+    if (connectionResult.contains(ConnectivityResult.mobile)) {
+      _status = 'Connected to MobileData';
+      notifyListeners();
+    } else if (connectionResult.contains(ConnectivityResult.wifi)) {
+      _status = 'Connected to Wifi';
+      notifyListeners();
+    } else if (connectionResult.contains(ConnectivityResult.none)) {
+      _status = 'Offline';
+      notifyListeners();
+    }
+
+    _streamSubscription = _connectivity.onConnectivityChanged.listen(
+      (List<ConnectivityResult> event) {
+        print('onConnectivityChanged >> ${event.first.toString()}');
+        if (event.contains(ConnectivityResult.wifi)) {
+          _status = 'Connected to Wifi';
+          notifyListeners();
+        } else if (event.contains(ConnectivityResult.mobile)) {
+          _status = 'Connected to MobileData';
+          notifyListeners();
+        } else if (event.contains(ConnectivityResult.none)) {
+          _status = 'Offline';
+          notifyListeners();
+        }
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _streamSubscription.cancel();
+    super.dispose();
+  }
+}

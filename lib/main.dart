@@ -2,18 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hive/hive.dart';
+import 'package:mobile/bloc/authentication/authentication_bloc.dart';
 import 'package:mobile/bloc/counter/counter_bloc.dart';
 import 'package:mobile/cubit/counter_cubit/counter_cubit.dart';
 import 'package:mobile/hive/users_adapter.dart';
 import 'package:mobile/hive/users_model.dart';
 import 'package:mobile/provider/change_active_index_provider.dart';
+import 'package:mobile/provider/language_provider.dart';
+import 'package:mobile/provider/network_provider.dart';
 import 'package:mobile/provider/theme_provider.dart';
 import 'package:mobile/provider/toggle_settings_provider.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:mobile/screens/screens.dart';
 import 'package:provider/provider.dart';
-
 import 'cubit/todo_cubit/todo_cubit.dart';
 
 void main() async {
@@ -40,8 +42,10 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => LanguageProvider()),
         ChangeNotifierProvider(create: (_) => ToggleSettingsProvider()),
-        ChangeNotifierProvider(create: (_) => ChangeActiveIndexProvider()),
+        ChangeNotifierProvider(create: (_) => CheckConnectivityProvider()),
+        ChangeNotifierProvider(create: (_) => ActiveIndexProvider()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
@@ -64,7 +68,7 @@ class MyApp extends StatelessWidget {
               switch (settings.name) {
                 case '/home':
                   return PageTransition(
-                    child: const HomeScreen(),
+                    child: HomeScreen(),
                     type: PageTransitionType.fade,
                     duration: const Duration(milliseconds: 300),
                     alignment: Alignment.center,
@@ -80,7 +84,10 @@ class MyApp extends StatelessWidget {
                   );
                 case '/home/register':
                   return PageTransition(
-                    child: const RegisterScreen(),
+                    child: BlocProvider(
+                      create: (context) => AuthenticationBloc(),
+                      child: const RegisterScreen(),
+                    ),
                     type: PageTransitionType.fade,
                     duration: const Duration(milliseconds: 300),
                     alignment: Alignment.center,
@@ -88,7 +95,10 @@ class MyApp extends StatelessWidget {
                   );
                 case '/home/login':
                   return PageTransition(
-                    child: const LoginScreen(),
+                    child: BlocProvider(
+                      create: (context) => AuthenticationBloc(),
+                      child: const LoginScreen(),
+                    ),
                     type: PageTransitionType.fade,
                     duration: const Duration(milliseconds: 300),
                     alignment: Alignment.center,

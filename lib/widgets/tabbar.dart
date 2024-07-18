@@ -33,9 +33,14 @@ class CustomTabBar extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(4, 2, 4, 2),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(6),
-                color: Colors.deepOrangeAccent,
+                color: index != 0 ? theme.background3 : theme.activeTabColor,
               ),
-              child: Text('dashboard $index'),
+              child: Text(
+                'dashboard $index',
+                style: TextStyle(
+                  color: theme.text1,
+                ),
+              ),
             ),
           ),
         ),

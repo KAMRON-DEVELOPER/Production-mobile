@@ -47,7 +47,7 @@ class AuthButton extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: () => print(text),
+        onPressed: () => print('aaa'),
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.green,
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),

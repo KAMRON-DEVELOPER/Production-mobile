@@ -3,52 +3,31 @@ import 'package:mobile/utilities/validator.dart';
 import '../hive/users_model.dart';
 
 final usersBox = Hive.box<UsersModel>('usersBox');
+final emails = usersBox.values
+    .where((user) => user.email != null)
+    .map((user) => user.email)
+    .toList();
+final phoneNumbers = usersBox.values
+    .where((user) => user.phoneNumber != null)
+    .map((user) => user.phoneNumber)
+    .toList();
 
 String? realtimeUsernameValidator(String value) {
-  String? usernameErrorText;
-  List<String?> usernames =
-      usersBox.values.map((user) => user.username).toList();
-  print('USERNAMES: $usernames');
-  usernameErrorText = value.isValidName;
-  if (usernameErrorText == null && usernames.contains(value)) {
-    usernameErrorText = 'oops, the username is already exist';
-  } else if (value.isEmpty) {
-    usernameErrorText = 'please, fill the username field';
-  }
-  return usernameErrorText;
+  return usersBox.values.any((user) => user.username == value)
+      ? 'Oops, the username is already in use'
+      : value.isValidName;
 }
 
 String? realtimePasswordValidator(String value) {
-  String? passwordErrorText;
-  passwordErrorText = value.isValidPassword;
-  if (value.isEmpty) {
-    passwordErrorText = 'please, fill the password field';
-  }
-  return passwordErrorText;
+  return value.isValidPassword;
 }
 
 String? realtimeEmailOrPhoneValidator(String value) {
-  String? emailOrPhoneErrorText;
-  List<String?> emails = usersBox.values
-      .map((user) => user.email)
-      .where((email) => email != null)
-      .toList();
-  List<String?> phoneNumbers = usersBox.values
-      .map((user) => user.phoneNumber)
-      .where((phone) => phone != null)
-      .toList();
-  if (value.isEmpty) {
-    emailOrPhoneErrorText = 'please, fill the field with email or phone number';
-  } else if (value.startsWith('+')) {
-    emailOrPhoneErrorText = value.isValidPhone;
-    if (phoneNumbers.contains(value)) {
-      emailOrPhoneErrorText = 'the phone number is already used';
-    }
-  } else if (RegExp(r'^[a-zA-Z0-9]').hasMatch(value)) {
-    emailOrPhoneErrorText = value.isValidEmail;
-    if (emails.contains(value)) {
-      emailOrPhoneErrorText = 'the email is already used';
-    }
+  if (value.startsWith('+') && phoneNumbers.contains(value)) {
+    return "Oops, this phone number is already in use";
+  } else if (value.startsWith(RegExp(r'^[a-zA-Z0-9]')) &&
+      emails.contains(value)) {
+    return "Oops, this email is already in use";
   }
-  return emailOrPhoneErrorText;
+  return value.isValidEmailOrPhone;
 }

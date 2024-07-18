@@ -1,7 +1,5 @@
 abstract class NetworkState {}
 
-class NetworkInitial extends NetworkState {}
+class ConnectedState extends NetworkState {}
 
-class NetworkSuccess extends NetworkState {}
-
-class NetworkFailure extends NetworkState {}
+class DisconnectedState extends NetworkState {}
