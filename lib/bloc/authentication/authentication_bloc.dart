@@ -15,6 +15,7 @@ class AuthenticationBloc
 
   void _onRegisterEvent(
       RegisterEvent event, Emitter<AuthenticationState> emit) async {
+    print('_onRegisterEvent');
     emit(AuthenticationLoading());
     final user = User(
       username: event.username,

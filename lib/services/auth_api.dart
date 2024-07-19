@@ -4,6 +4,7 @@ import 'package:mobile/models/user.dart';
 class AuthApiService {
   late Dio _dio;
   final String _baseUrl = 'http://192.168.31.42:8000/api/';
+
   // final settingsBox = Hive.box('settingsBox');
 
   AuthApiService() {
@@ -12,6 +13,7 @@ class AuthApiService {
 
   //! register fetcher
   Future<User?> register(User registerData) async {
+    print('registerData >> $registerData');
     try {
       Response response = await _dio.post(
         '${_baseUrl}users/register/',

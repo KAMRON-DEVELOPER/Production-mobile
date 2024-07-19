@@ -32,7 +32,7 @@ extension Validator on String {
       } else if (startsWith(RegExp(r'^[a-zA-Z0-9]'))) {
         return "Email is incorrect";
       } else {
-        return "Please enter a valid phone number (starting with +) or email address.";
+        return "Please enter a phone number or email";
       }
     }
     return null;
