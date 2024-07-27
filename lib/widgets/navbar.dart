@@ -12,13 +12,12 @@ class Navbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Provider.of<ThemeProvider>(context).currentTheme;
-    final activeIndexProvider =
-        Provider.of<ActiveIndexProvider>(context);
+    final activeIndexProvider = Provider.of<ActiveIndexProvider>(context);
     final activeIndex = activeIndexProvider.activeIndex;
     final toggleSettingsProvider =
         Provider.of<ToggleSettingsProvider>(context, listen: false);
 
-    print('navbar building...');
+    // print('navbar building...');
     return BottomAppBar(
       height: 64,
       color: theme.background1,
@@ -107,9 +106,8 @@ class Navbar extends StatelessWidget {
         child: Icon(
           icon,
           size: 28,
-          color: selectedIndex == itemIndex
-              ? theme.activeTabColor
-              : theme.text1,
+          color:
+              selectedIndex == itemIndex ? theme.activeTabColor : theme.text1,
         ),
       ),
     );

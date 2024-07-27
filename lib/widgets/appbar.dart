@@ -9,7 +9,7 @@ AppBar buildAppBar(BuildContext context, String title) {
 
   return AppBar(
     backgroundColor: theme.background1,
-    toolbarHeight: 64,
+    toolbarHeight: 56,
     centerTitle: true,
     title: Text(
       title,

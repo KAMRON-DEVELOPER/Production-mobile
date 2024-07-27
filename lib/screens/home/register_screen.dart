@@ -5,9 +5,9 @@ import 'package:hive/hive.dart';
 import 'package:mobile/bloc/authentication/authentication_bloc.dart';
 import 'package:mobile/bloc/authentication/authentication_event.dart';
 import 'package:mobile/bloc/authentication/authentication_state.dart';
+import 'package:mobile/models/user.dart';
 import 'package:mobile/utilities/realtime_validators.dart';
 import 'package:provider/provider.dart';
-import '../../hive/users_model.dart';
 import '../../provider/theme_provider.dart';
 import '../../services/validator_api.dart';
 
@@ -26,7 +26,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String? emailOrPhoneError;
   String? passwordError;
   final _formKey = GlobalKey<FormState>();
-  final usersBox = Hive.box<UsersModel>('usersBox');
   ValidateApiService validateUsersService = ValidateApiService();
   double socialAuthIconSize = 48;
   final String currentTheme =
@@ -57,8 +56,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return BlocConsumer<AuthenticationBloc, AuthenticationState>(
       listener: (context, state) {
         print('STATE LISTENER >> $state');
+        if (state is AuthenticationSuccess) {
+          print("I'm pushing to verify_screen");
+          try {
+            Navigator.pushNamed(context, '/home/verify');
+          } catch (error) {
+            print('unexpected error >> $error');
+          }
+        } else if (state == const AuthenticationFailure()) {
+          print('ERROR OCCURRED');
+        }
       },
       builder: (context, state) {
+        AuthenticationState authState = state;
         print('STATE BUILDER >> $state');
         return Scaffold(
           backgroundColor: theme.background1,
@@ -88,10 +98,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         TextFormField(
                           onChanged: (value) {
                             usernameError =
-                                realtimeUsernameValidator(value.trim());
+                                registerUsernameValidator(value.trim());
                             setState(() {});
                           },
                           controller: _usernameController,
+                          style: const TextStyle(color: Colors.white),
                           decoration: InputDecoration(
                             labelText: 'username',
                             errorText: usernameError,
@@ -111,6 +122,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             setState(() {});
                           },
                           controller: _emailOrPhoneController,
+                          style: const TextStyle(color: Colors.white),
                           decoration: InputDecoration(
                             labelText: 'email or phone',
                             errorText: emailOrPhoneError,
@@ -130,6 +142,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             setState(() {});
                           },
                           controller: _passwordController,
+                          style: const TextStyle(color: Colors.white),
                           decoration: InputDecoration(
                             labelText: 'password',
                             errorText: passwordError,
@@ -165,19 +178,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () => {
-                        if (!hasError)
-                          {
-                            print('NOT ANY ERROR >>'),
-                            context.read<AuthenticationBloc>().add(
-                                  RegisterEvent(
-                                    username: _usernameController.text.trim(),
-                                    emailOrPhone:
-                                        _emailOrPhoneController.text.trim(),
-                                    password: _passwordController.text.trim(),
-                                  ),
-                                ),
-                          }
+                      onPressed: () {
+                        if (!hasError) {
+                          print('NOT ANY ERROR >>');
+                          final User registerData = User(
+                            username: _usernameController.text.trim(),
+                            emailOrPhone: _emailOrPhoneController.text.trim(),
+                            password: _passwordController.text.trim(),
+                          );
+                          context.read<AuthenticationBloc>().add(
+                                RegisterSubmitEvent(registerData: registerData),
+                              );
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
@@ -186,12 +198,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           borderRadius: BorderRadius.all(Radius.circular(12)),
                         ),
                       ),
-                      child: const Text(
-                        "Register",
-                        style: TextStyle(
-                          color: Colors.black,
-                        ),
-                      ),
+                      child: authState == AuthenticationLoading()
+                          ? const Text(
+                              "Loading...",
+                              style: TextStyle(
+                                color: Colors.black,
+                              ),
+                            )
+                          : const Text(
+                              "Register",
+                              style: TextStyle(
+                                color: Colors.black,
+                              ),
+                            ),
                     ),
                   ),
                   const SizedBox(height: 28),

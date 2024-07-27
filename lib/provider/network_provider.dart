@@ -2,14 +2,15 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 
-class CheckConnectivityProvider extends ChangeNotifier {
+class ConnectivityProvider extends ChangeNotifier {
   final Connectivity _connectivity = Connectivity();
   late StreamSubscription<List<ConnectivityResult>> _streamSubscription;
 
   String _status = ' waiting...;';
+
   String get status => _status;
 
-  CheckConnectivityProvider() {
+  ConnectivityProvider() {
     checkConnectivity();
   }
 
@@ -30,11 +31,9 @@ class CheckConnectivityProvider extends ChangeNotifier {
     _streamSubscription = _connectivity.onConnectivityChanged.listen(
       (List<ConnectivityResult> event) {
         print('onConnectivityChanged >> ${event.first.toString()}');
-        if (event.contains(ConnectivityResult.wifi)) {
-          _status = 'Connected to Wifi';
-          notifyListeners();
-        } else if (event.contains(ConnectivityResult.mobile)) {
-          _status = 'Connected to MobileData';
+        if (event.contains(ConnectivityResult.wifi) ||
+            event.contains(ConnectivityResult.mobile)) {
+          _status = 'Online';
           notifyListeners();
         } else if (event.contains(ConnectivityResult.none)) {
           _status = 'Offline';

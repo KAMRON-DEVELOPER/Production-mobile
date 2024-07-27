@@ -4,7 +4,10 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hive/hive.dart';
 import 'package:mobile/bloc/authentication/authentication_bloc.dart';
 import 'package:mobile/bloc/counter/counter_bloc.dart';
+import 'package:mobile/bloc/profile/profile_bloc.dart';
 import 'package:mobile/cubit/counter_cubit/counter_cubit.dart';
+import 'package:mobile/hive/profile_adapter.dart';
+import 'package:mobile/hive/profile_model.dart';
 import 'package:mobile/hive/users_adapter.dart';
 import 'package:mobile/hive/users_model.dart';
 import 'package:mobile/provider/change_active_index_provider.dart';
@@ -12,6 +15,7 @@ import 'package:mobile/provider/language_provider.dart';
 import 'package:mobile/provider/network_provider.dart';
 import 'package:mobile/provider/theme_provider.dart';
 import 'package:mobile/provider/toggle_settings_provider.dart';
+import 'package:mobile/screens/home/verify_screen.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:mobile/screens/screens.dart';
@@ -24,13 +28,21 @@ void main() async {
   final appDocumentDirectory = await getApplicationDocumentsDirectory();
   Hive.init(appDocumentDirectory.path);
   Hive.registerAdapter(UsersAdapter());
+  Hive.registerAdapter(ProfileAdapter());
   await Hive.openBox<UsersModel>('usersBox');
+  await Hive.openBox<ProfileModel>('profileBox');
   await Hive.openBox('settingsBox');
   var settingsBox = Hive.box('settingsBox');
   String? accessToken = settingsBox.get('accessToken');
   print("accessToken: $accessToken");
-
   FlutterNativeSplash.remove();
+
+  // Enable debugInvertOversizeImages in debug mode only
+  assert(() {
+    debugInvertOversizedImages = true;
+    return true;
+  }());
+
   runApp(const MyApp());
 }
 
@@ -44,7 +56,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => LanguageProvider()),
         ChangeNotifierProvider(create: (_) => ToggleSettingsProvider()),
-        ChangeNotifierProvider(create: (_) => CheckConnectivityProvider()),
+        ChangeNotifierProvider(create: (_) => ConnectivityProvider()),
         ChangeNotifierProvider(create: (_) => ActiveIndexProvider()),
       ],
       child: Consumer<ThemeProvider>(
@@ -56,11 +68,6 @@ class MyApp extends StatelessWidget {
               Locale('uz', 'UZ'), // Uzbek
               Locale('ru', 'RU'), // Russian
               Locale('tr', 'TR'), // Turkish
-              Locale('fr', 'FR'), // French
-              Locale('hi', 'IN'), // Hindi (India)
-              Locale('zh', 'CN'), // Chinese
-              Locale('es', 'ES'), // Spanish
-              Locale('pt', 'BR'), // Portuguese
             ],
             title: "NQE",
             initialRoute: '/home',
@@ -68,7 +75,12 @@ class MyApp extends StatelessWidget {
               switch (settings.name) {
                 case '/home':
                   return PageTransition(
-                    child: HomeScreen(),
+                    child: MultiBlocProvider(
+                      providers: [
+                        BlocProvider(create: (context) => ProfileBloc()),
+                      ],
+                      child: HomeScreen(),
+                    ),
                     type: PageTransitionType.fade,
                     duration: const Duration(milliseconds: 300),
                     alignment: Alignment.center,
@@ -87,6 +99,17 @@ class MyApp extends StatelessWidget {
                     child: BlocProvider(
                       create: (context) => AuthenticationBloc(),
                       child: const RegisterScreen(),
+                    ),
+                    type: PageTransitionType.fade,
+                    duration: const Duration(milliseconds: 300),
+                    alignment: Alignment.center,
+                    settings: settings,
+                  );
+                case '/home/verify':
+                  return PageTransition(
+                    child: BlocProvider(
+                      create: (context) => AuthenticationBloc(),
+                      child: const VerifyScreen(),
                     ),
                     type: PageTransitionType.fade,
                     duration: const Duration(milliseconds: 300),

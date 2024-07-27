@@ -38,6 +38,8 @@ dependencies:
   flutter_svg: ^2.0.10+1
   flutter_localization: ^0.2.0
   connectivity_plus: ^6.0.3
+  jwt_decoder: ^2.0.1
+  cached_network_image: ^3.3.1
 
 
 
@@ -65,6 +67,7 @@ flutter:
   assets:
     - assets/
     - assets/icons/
+    - assets/images/
 
   # fonts:
   #   - family: Schyler

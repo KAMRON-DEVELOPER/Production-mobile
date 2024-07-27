@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../../models/user.dart';
 
 abstract class AuthenticationEvent extends Equatable {
   const AuthenticationEvent();
@@ -7,32 +8,29 @@ abstract class AuthenticationEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class RegisterEvent extends AuthenticationEvent {
-  final String username;
-  final String emailOrPhone;
-  final String password;
+class RegisterSubmitEvent extends AuthenticationEvent {
+  final User registerData;
 
-  const RegisterEvent({
-    required this.username,
-    required this.emailOrPhone,
-    required this.password,
-  });
+  const RegisterSubmitEvent({required this.registerData});
 
   @override
-  List<Object> get props => [username, emailOrPhone, password];
+  List<Object> get props => [registerData];
 }
 
-class LoginEvent extends AuthenticationEvent {
-  final String username;
-  final String password;
-  final String code;
+class VerifySubmitEvent extends AuthenticationEvent {
+  final User verifyData;
 
-  const LoginEvent({
-    required this.username,
-    required this.password,
-    required this.code,
-  });
+  const VerifySubmitEvent({required this.verifyData});
 
   @override
-  List<Object> get props => [username, password, code];
+  List<Object> get props => [verifyData];
+}
+
+class LoginSubmitEvent extends AuthenticationEvent {
+  final User loginData;
+
+  const LoginSubmitEvent({required this.loginData});
+
+  @override
+  List<Object> get props => [loginData];
 }

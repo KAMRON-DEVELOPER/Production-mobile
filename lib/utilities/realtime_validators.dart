@@ -12,10 +12,17 @@ final phoneNumbers = usersBox.values
     .map((user) => user.phoneNumber)
     .toList();
 
-String? realtimeUsernameValidator(String value) {
+String? registerUsernameValidator(String value) {
   return usersBox.values.any((user) => user.username == value)
       ? 'Oops, the username is already in use'
       : value.isValidName;
+}
+
+String? loginUsernameValidator(String value) {
+  usersBox.values.map((user) => print("user.username: ${user.username}"));
+  return usersBox.values.any((user) => user.username == value)
+      ? value.isValidName
+      : 'Username not found';
 }
 
 String? realtimePasswordValidator(String value) {
@@ -30,4 +37,8 @@ String? realtimeEmailOrPhoneValidator(String value) {
     return "Oops, this email is already in use";
   }
   return value.isValidEmailOrPhone;
+}
+
+String? realtimeCodeValidator(String value) {
+  return value.isValidCode;
 }

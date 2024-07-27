@@ -1,3 +1,5 @@
+import '../hive/profile_model.dart';
+
 class User {
   String? id;
   String? username;
@@ -19,6 +21,8 @@ class User {
   String? updatedTime;
   String? accessToken;
   String? refreshToken;
+  String? emailOrPhone;
+  String? code;
 
   User({
     this.id,
@@ -41,29 +45,9 @@ class User {
     this.accessToken,
     this.refreshToken,
     this.password,
+    this.emailOrPhone,
+    this.code,
   });
-
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      id: json['id'],
-      username: json['username'],
-      fullName: json['full_name'],
-      daysSinceJoined: json['days_since_joined'],
-      photo: json['photo'],
-      firstName: json['first_name'],
-      lastName: json['last_name'],
-      email: json['email'],
-      phoneNumber: json['phone_number'],
-      dateOfBirth: json['date_of_birth'],
-      gender: json['gender'],
-      authType: json['auth_type'],
-      province: json['province'],
-      bio: json['bio'],
-      dateJoined: json['date_joined'],
-      createdTime: json['created_time'],
-      updatedTime: json['updated_time'],
-    );
-  }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
@@ -87,17 +71,7 @@ class User {
     return data;
   }
 
-  factory User.fromJsonForRegister(Map<String, dynamic> json) {
-    return User(
-      username: json['username'],
-      email: json['email'],
-      phoneNumber: json['phone_number'],
-      accessToken: json['access_token'],
-      refreshToken: json['refresh_token'],
-    );
-  }
-
-  Map<String, dynamic> toJsonForRegister({required String emailOrPhone}) {
+  Map<String, dynamic> toJsonForRegister() {
     return {
       'username': username,
       'email_or_phone': emailOrPhone,
@@ -105,21 +79,64 @@ class User {
     };
   }
 
-  factory User.fromJsonForLogin(Map<String, dynamic> json) {
+  Map<String, dynamic> toJsonForVerify() {
+    return {'code': code};
+  }
+
+  Map<String, dynamic> toJsonForLogin() {
+    return {'username': username, 'password': password};
+  }
+
+  factory User.fromJson(Map<String, dynamic> json) {
     return User(
+      id: json['id'],
       username: json['username'],
+      fullName: json['full_name'],
+      daysSinceJoined: json['days_since_joined'],
+      photo: json['photo'],
+      firstName: json['first_name'],
+      lastName: json['last_name'],
       email: json['email'],
       phoneNumber: json['phone_number'],
-      accessToken: json['access_token'],
-      refreshToken: json['refresh_token'],
+      dateOfBirth: json['date_of_birth'],
+      gender: json['gender'],
+      authType: json['auth_type'],
+      province: json['province'],
+      bio: json['bio'],
+      dateJoined: json['date_joined'],
+      createdTime: json['created_time'],
+      updatedTime: json['updated_time'],
+      accessToken: json['access'],
+      refreshToken: json['refresh'],
     );
   }
 
-  Map<String, dynamic> toJsonForLogin({required String code}) {
-    return {
-      'username': username,
-      'password': password,
-      'code': code,
-    };
+  factory User.fromJsonToToken(Map<String, dynamic> json) {
+    return User(
+      accessToken: json['access'],
+      refreshToken: json['refresh'],
+    );
+  }
+
+  factory User.fromProfileModel(ProfileModel profileModel) {
+    return User(
+      id: profileModel.id,
+      username: profileModel.username,
+      firstName: profileModel.firstName,
+      lastName: profileModel.lastName,
+      email: profileModel.email,
+      phoneNumber: profileModel.phoneNumber,
+      fullName: profileModel.fullName,
+      daysSinceJoined: profileModel.daysSinceJoined,
+      photo: profileModel.photo,
+      dateOfBirth: profileModel.dateOfBirth,
+      gender: profileModel.gender,
+      authType: profileModel.authType,
+      province: profileModel.province,
+      bio: profileModel.bio,
+      dateJoined: profileModel.dateJoined,
+      createdTime: profileModel.createdTime,
+      updatedTime: profileModel.updatedTime,
+    );
   }
 }

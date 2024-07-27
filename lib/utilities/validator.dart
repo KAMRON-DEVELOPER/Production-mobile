@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 extension Validator on String {
   String? get isValidName {
     final nameRegExp = RegExp(r"^[A-Za-z][A-Za-z0-9_]{4,15}$");
@@ -36,5 +38,27 @@ extension Validator on String {
       }
     }
     return null;
+  }
+
+  String? get isValidCode {
+    if (isEmpty) {
+      return "Please, fill the code field";
+    } else if (length < 4) {
+      return "Too short, code should contains 4 digit";
+    } else if (length > 4) {
+      return "Too long, code should contains 4 digit";
+    } else {
+      return null;
+    }
+  }
+}
+
+extension ImageExtension on num {
+  int cacheSize(BuildContext context) {
+    return (this * MediaQuery.of(context).devicePixelRatio).round();
+  }
+
+  double doubleCacheSize(BuildContext context) {
+    return (this * MediaQuery.of(context).devicePixelRatio).floorToDouble();
   }
 }
