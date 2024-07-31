@@ -23,6 +23,7 @@ class User {
   String? refreshToken;
   String? emailOrPhone;
   String? code;
+  List<Map<String, String>>? tabs;
 
   User({
     this.id,
@@ -47,6 +48,7 @@ class User {
     this.password,
     this.emailOrPhone,
     this.code,
+    this.tabs,
   });
 
   Map<String, dynamic> toJson() {
@@ -108,6 +110,10 @@ class User {
       updatedTime: json['updated_time'],
       accessToken: json['access'],
       refreshToken: json['refresh'],
+      tabs: (json["tabs"] as List)
+          .map((tab) => (tab as Map<String, dynamic>)
+              .map((key, value) => MapEntry(key, value?.toString() ?? '')))
+          .toList(),
     );
   }
 
@@ -137,6 +143,7 @@ class User {
       dateJoined: profileModel.dateJoined,
       createdTime: profileModel.createdTime,
       updatedTime: profileModel.updatedTime,
+      tabs: profileModel.tabs,
     );
   }
 }

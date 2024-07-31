@@ -20,7 +20,10 @@ import 'package:page_transition/page_transition.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:mobile/screens/screens.dart';
 import 'package:provider/provider.dart';
+import 'bloc/notes/notes_bloc.dart';
 import 'cubit/todo_cubit/todo_cubit.dart';
+import 'hive/note_adapter.dart';
+import 'hive/note_model.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -29,12 +32,11 @@ void main() async {
   Hive.init(appDocumentDirectory.path);
   Hive.registerAdapter(UsersAdapter());
   Hive.registerAdapter(ProfileAdapter());
+  Hive.registerAdapter(NoteAdapter());
   await Hive.openBox<UsersModel>('usersBox');
   await Hive.openBox<ProfileModel>('profileBox');
+  await Hive.openBox<NoteModel>('NotesBox');
   await Hive.openBox('settingsBox');
-  var settingsBox = Hive.box('settingsBox');
-  String? accessToken = settingsBox.get('accessToken');
-  print("accessToken: $accessToken");
   FlutterNativeSplash.remove();
 
   // Enable debugInvertOversizeImages in debug mode only
@@ -88,7 +90,10 @@ class MyApp extends StatelessWidget {
                   );
                 case '/home/notes':
                   return PageTransition(
-                    child: const NotesScreen(),
+                    child: BlocProvider(
+                      create: (context) => NotesBloc(),
+                      child: NotesScreen(),
+                    ),
                     type: PageTransitionType.rightToLeft,
                     duration: const Duration(seconds: 1),
                     alignment: Alignment.center,

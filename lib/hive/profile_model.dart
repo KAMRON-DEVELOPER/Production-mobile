@@ -1,5 +1,4 @@
 import 'package:hive/hive.dart';
-
 import '../models/user.dart';
 
 class ProfileModel extends HiveObject {
@@ -37,6 +36,8 @@ class ProfileModel extends HiveObject {
   String? createdTime;
   @HiveField(16)
   String? updatedTime;
+  @HiveField(17)
+  List<Map<String, String>>? tabs;
 
   ProfileModel({
     required this.id,
@@ -56,6 +57,7 @@ class ProfileModel extends HiveObject {
     required this.dateJoined,
     required this.createdTime,
     required this.updatedTime,
+    required this.tabs,
   });
 
   factory ProfileModel.fromUserModel(User user) {
@@ -77,6 +79,7 @@ class ProfileModel extends HiveObject {
       dateJoined: user.dateJoined,
       createdTime: user.createdTime,
       updatedTime: user.updatedTime,
+      tabs: user.tabs,
     );
   }
 }

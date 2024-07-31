@@ -9,7 +9,7 @@ import '../../models/user.dart';
 
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ProfileBloc() : super(const ProfileStateLoading()) {
-    on<GetProfileEvent>(_getAPIProfileEvent);
+    on<GetProfileEvent>(_getProfileEvent);
     on<GetCacheProfileEvent>(_getCacheProfileEvent);
   }
 
@@ -28,7 +28,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     }
   }
 
-  void _getAPIProfileEvent(
+  void _getProfileEvent(
       ProfileEvent event, Emitter<ProfileState> emit) async {
     String? accessToken = await settingsBox.get('accessToken');
     String? refreshToken = await settingsBox.get('refreshToken');
@@ -77,6 +77,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           await authApiService.fetchUserProfile(accessToken: accessToken);
       print('4) profileData >>>> ${user?.username}');
       if (user != null) {
+        // await profileBox.delete('profileData');
         await profileBox.put('profileData', ProfileModel.fromUserModel(user));
         emit(ProfileStateSuccess(profileData: user));
       } else {
