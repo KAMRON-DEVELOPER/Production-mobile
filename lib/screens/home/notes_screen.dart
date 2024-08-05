@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/bloc/notes/notes_event.dart';
+import 'package:mobile/provider/selected_note_provider.dart';
 import 'package:provider/provider.dart';
 import '../../bloc/notes/notes_bloc.dart';
 import '../../bloc/notes/notes_state.dart';
@@ -11,23 +12,13 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import '../../widgets/top_snack_bar.dart';
 
 class NotesScreen extends StatelessWidget {
-  final ConnectivityProvider? connectionStatus = ConnectivityProvider();
-  NotesScreen({super.key});
+  const NotesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    List<int> selectedIndexes = [];
-    void toggleSelection(int index) {
-      if (selectedIndexes.contains(index)) {
-        selectedIndexes.remove(index);
-      } else {
-        selectedIndexes.add(index);
-        print('selectedIndex: $selectedIndexes');
-      }
-    }
     bool isOnline = false;
     ConnectivityProvider connectivityProvider =
-    Provider.of<ConnectivityProvider>(context);
+        Provider.of<ConnectivityProvider>(context);
     isOnline = connectivityProvider.status == 'Online';
     // final theme = Provider.of<ThemeProvider>(context).currentTheme;
 
@@ -57,19 +48,46 @@ class NotesScreen extends StatelessWidget {
               return await Future.delayed(const Duration(seconds: 1));
             },
             child: SingleChildScrollView(
+              padding: const EdgeInsets.only(top: 40),
               physics: const AlwaysScrollableScrollPhysics(),
+              scrollDirection: Axis.vertical,
               child: BlocConsumer<NotesBloc, NotesState>(
                 listener: (context, state) {
-                  print('LISTENER NOTES >> $state');
+                  if (state is NotesStateLoading) {
+                    print('LISTENER NotesStateLoading');
+                    if (state.mustRebuild == true) {
+                      print("LISTENER NotesStateLoading MUST REBUILD");
+                      context.read<NotesBloc>().add(GetNotesEvent());
+                    }
+                  } else if (state is NotesStateSuccess) {
+                    print('LISTENER NotesStateSuccess ${state.notesData}');
+                    showTopSnackBar(
+                      context: context,
+                      message: "notesData success",
+                      backgroundColor: Colors.green,
+                      duration: const Duration(milliseconds: 2000),
+                    );
+                  } else if (state is NotesStateFailure) {
+                    print(
+                        'LISTENER NotesStateFailure ${state.notesFailureMessage}');
+                    showTopSnackBar(
+                      context: context,
+                      message: state.notesFailureMessage,
+                      backgroundColor: Colors.red,
+                      duration: const Duration(milliseconds: 2000),
+                    );
+                  }
                 },
                 builder: (context, state) {
                   print('BUILDER NOTES >> $state');
-                  if (isOnline) {
-                    context.read<NotesBloc>().add(GetNotesEvent());
-                  } else {
-                    context.read<NotesBloc>().add(GetCacheNotesEvent());
-                  }
                   if (state is NotesStateLoading) {
+                    if (isOnline) {
+                      print('BUILDER GetNotesEvent');
+                      context.read<NotesBloc>().add(GetNotesEvent());
+                    } else {
+                      print('BUILDER GetCacheNotesEvent');
+                      context.read<NotesBloc>().add(GetCachedNotesEvent());
+                    }
                     return const CircularProgressIndicator();
                   } else if (state is NotesStateSuccess) {
                     return MasonryGridView.custom(
@@ -89,21 +107,34 @@ class NotesScreen extends StatelessWidget {
                         (BuildContext context, int index) {
                           return BuildNote(
                             index: index,
-                            body: state.notesData[index]['body'].toString(),
-                            isSelected: selectedIndexes.contains(index),
-                            onLongPress: toggleSelection,
-                            selectedIndexes: selectedIndexes,
+                            body: state.notesData[index]!.body.toString(),
+                            isSelected: context
+                                .read<SelectedNoteProvider>()
+                                .selectedIndexes
+                                .contains(index),
+                            onLongPress: context
+                                .watch<SelectedNoteProvider>()
+                                .toggleSelection,
+                            selectedIndexes: context
+                                .read<SelectedNoteProvider>()
+                                .selectedIndexes,
                           );
                         },
                       ),
                     );
                   } else if (state is NotesStateFailure) {
-                    return Text(
-                      state.notesFailureMessage,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 32,
-                      ),
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          state.notesFailureMessage,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 32,
+                          ),
+                        ),
+                      ],
                     );
                   } else {
                     return const Text(
@@ -162,11 +193,7 @@ class BuildNote extends StatelessWidget {
           children: [
             Column(
               children: [
-                Text(
-                  body,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Text(body),
+                Text(body, style: const TextStyle(fontWeight: FontWeight.bold)),
               ],
             ),
           ],
@@ -175,54 +202,3 @@ class BuildNote extends StatelessWidget {
     );
   }
 }
-
-// List<Map<String, dynamic>> notes = [
-//   {'title': 'GITHUB TOKEN', 'body': 'ghp_hezdfsdfl3e7Ge6'},
-//   {'title': 'GITHUB password', 'body': '@kamronbek2003'},
-//   {'title': 'Steam password', 'body': '@kamronbek2003'},
-//   {'title': 'Dennis Richie', 'body': '1941-2011'},
-//   {'title': 'sophisticated', 'body': 'sophisticated - murakkab'},
-//   {
-//     'title': 'account passwords',
-//     'body': 'kamronbekatajanovdev@gmail.com >> @kamronbekdev2003,'
-//         'atajanovkamronbek2003@gmail.com >> @kamronbek2003,'
-//         'dangersenator577@gmail.com@gmail.com >> @Senator12,'
-//   },
-//   {
-//     'title': 'my laptop',
-//     'body': 'acer aspire e1-571, i3-3120m, 8gb ddr3 ram, 256gb ssd'
-//   },
-//   {
-//     'title': 'staggered',
-//     'body':
-//         'To use the flutter_staggered_grid_view package with the StaggeredGrid.custom widget, you need to provide a StaggeredGridDelegate that defines the layout of the grid. This delegate controls how the tiles in the grid are positioned.'
-//   },
-//   {
-//     'title': 'my skills',
-//     'body':
-//         'Python, Django, DRF, PostgreSQL, Javascript, React, Flutter, Dart, Redux',
-//   },
-//   {
-//     'title': 'reminder',
-//     'body': 'lets break down this problem',
-//   },
-//   {
-//     'title': 'some note',
-//     'body':
-//         "This layout emphasizes certain items over others in a collection. It creates hierarchy using varied container sizes and ratios.",
-//   },
-//   {
-//     'title': 'SE4',
-//     'body':
-//         'In a flashback Jean witnesses her mother’s boyfriend making sexual advances towards twelve-year-old Joanna. The radio show is put on hiatus in the wake of Ruby’s complaint against O, but Jean decides to quit to focus on being a mother. She offers Joanna money to repay her debts, but accompanies the money with a detailed contract dictating how Joanna needs to behave going forward. Maeve and Otis agree to have dinner with Jean so that she can get to know Maeve.',
-//   },
-//   {
-//     'title': 'Maeve',
-//     'body':
-//         'two confess their love for each other and finally have xxx, knowing that they cannot be together.',
-//   },
-//   {
-//     'title': 'Otis',
-//     'body': "Otis that she cannot be friends with him anymore",
-//   }
-// ];

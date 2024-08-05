@@ -1,29 +1,44 @@
-import '../hive/profile_model.dart';
+import 'package:hive/hive.dart';
 
-class User {
+class User extends HiveObject {
+  @HiveField(0)
   String? id;
+  @HiveField(1)
   String? username;
+  @HiveField(2)
   String? firstName;
+  @HiveField(3)
   String? lastName;
+  @HiveField(4)
   String? email;
+  @HiveField(5)
   String? phoneNumber;
+  @HiveField(6)
   String? password;
+  @HiveField(7)
   String? fullName;
+  @HiveField(8)
   int? daysSinceJoined;
+  @HiveField(9)
   String? photo;
+  @HiveField(10)
   String? dateOfBirth;
+  @HiveField(11)
   String? gender;
+  @HiveField(12)
   String? authType;
+  @HiveField(13)
   String? province;
+  @HiveField(14)
   String? bio;
-  String? dateJoined;
-  String? createdTime;
-  String? updatedTime;
-  String? accessToken;
-  String? refreshToken;
-  String? emailOrPhone;
+  @HiveField(15)
   String? code;
-  List<Map<String, String>>? tabs;
+  @HiveField(16)
+  String? emailOrPhone;
+  @HiveField(17)
+  String? accessToken;
+  @HiveField(18)
+  String? refreshToken;
 
   User({
     this.id,
@@ -37,40 +52,28 @@ class User {
     this.phoneNumber,
     this.dateOfBirth,
     this.gender,
-    this.authType,
     this.province,
     this.bio,
-    this.dateJoined,
-    this.createdTime,
-    this.updatedTime,
+    this.password,
+    this.code,
+    this.emailOrPhone,
     this.accessToken,
     this.refreshToken,
-    this.password,
-    this.emailOrPhone,
-    this.code,
-    this.tabs,
   });
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = id;
-    data['username'] = username;
-    data['full_name'] = fullName;
-    data['days_since_joined'] = daysSinceJoined;
-    data['photo'] = photo;
-    data['first_name'] = firstName;
-    data['last_name'] = lastName;
-    data['email'] = email;
-    data['phone_number'] = phoneNumber;
-    data['date_of_birth'] = dateOfBirth;
-    data['gender'] = gender;
-    data['auth_type'] = authType;
-    data['province'] = province;
-    data['bio'] = bio;
-    data['date_joined'] = dateJoined;
-    data['created_time'] = createdTime;
-    data['updated_time'] = updatedTime;
-    return data;
+    return {
+      "username": username,
+      "photo": photo,
+      "first_name": firstName,
+      "last_name": lastName,
+      "email": email,
+      "phone_number": phoneNumber,
+      "date_of_birth": dateOfBirth,
+      "gender": gender,
+      "province": province,
+      "bio": bio,
+    };
   }
 
   Map<String, dynamic> toJsonForRegister() {
@@ -102,48 +105,41 @@ class User {
       phoneNumber: json['phone_number'],
       dateOfBirth: json['date_of_birth'],
       gender: json['gender'],
-      authType: json['auth_type'],
       province: json['province'],
       bio: json['bio'],
-      dateJoined: json['date_joined'],
-      createdTime: json['created_time'],
-      updatedTime: json['updated_time'],
       accessToken: json['access'],
       refreshToken: json['refresh'],
-      tabs: (json["tabs"] as List)
-          .map((tab) => (tab as Map<String, dynamic>)
-              .map((key, value) => MapEntry(key, value?.toString() ?? '')))
-          .toList(),
     );
   }
 
-  factory User.fromJsonToToken(Map<String, dynamic> json) {
+  factory User.fromJsonForToken(Map<String, dynamic> json) {
     return User(
       accessToken: json['access'],
       refreshToken: json['refresh'],
     );
   }
 
-  factory User.fromProfileModel(ProfileModel profileModel) {
+  Map<String, dynamic> toMap() {
+    return {
+      "accessToken": accessToken,
+      "refreshToken": refreshToken,
+    };
+  }
+
+  forUpdate(User? updateData) {
     return User(
-      id: profileModel.id,
-      username: profileModel.username,
-      firstName: profileModel.firstName,
-      lastName: profileModel.lastName,
-      email: profileModel.email,
-      phoneNumber: profileModel.phoneNumber,
-      fullName: profileModel.fullName,
-      daysSinceJoined: profileModel.daysSinceJoined,
-      photo: profileModel.photo,
-      dateOfBirth: profileModel.dateOfBirth,
-      gender: profileModel.gender,
-      authType: profileModel.authType,
-      province: profileModel.province,
-      bio: profileModel.bio,
-      dateJoined: profileModel.dateJoined,
-      createdTime: profileModel.createdTime,
-      updatedTime: profileModel.updatedTime,
-      tabs: profileModel.tabs,
+      username: updateData?.username ?? username,
+      fullName: updateData?.fullName ?? fullName,
+      daysSinceJoined: daysSinceJoined,
+      photo: updateData?.photo ?? photo,
+      firstName: updateData?.firstName ?? firstName,
+      lastName: updateData?.lastName ?? lastName,
+      email: updateData?.email ?? email,
+      phoneNumber: updateData?.phoneNumber ?? phoneNumber,
+      dateOfBirth: updateData?.dateOfBirth ?? dateOfBirth,
+      gender: updateData?.gender ?? gender,
+      province: updateData?.province ?? province,
+      bio: updateData?.bio ?? bio,
     );
   }
 }

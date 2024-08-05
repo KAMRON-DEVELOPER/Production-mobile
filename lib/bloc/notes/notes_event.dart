@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import '../../models/note.dart';
+
 abstract class NotesEvent extends Equatable {
   const NotesEvent();
 
@@ -9,11 +11,44 @@ abstract class NotesEvent extends Equatable {
 
 class GetNotesEvent extends NotesEvent {}
 
-class GetCacheNotesEvent extends NotesEvent {}
+class GetCachedNotesEvent extends NotesEvent {}
 
-class ChangeSequenceEvent extends NotesEvent {}
+class CreateNoteEvent extends NotesEvent {
+  final Note? noteFormData;
 
-class ChangeCategoryEvent extends NotesEvent {}
+  const CreateNoteEvent({required this.noteFormData});
+
+  @override
+  List<Object?> get props => [noteFormData];
+}
+
+class ChangeNotesCategoryEvent extends NotesEvent {
+  final List<Note?> notesFormData;
+
+  const ChangeNotesCategoryEvent({required this.notesFormData});
+
+  @override
+  List<Object?> get props => [notesFormData];
+}
+
+class UpdateNoteEvent extends NotesEvent {
+  final int index;
+  final Note? noteFormData;
+
+  const UpdateNoteEvent({required this.index, required this.noteFormData});
+
+  @override
+  List<Object?> get props => [index, noteFormData];
+}
+
+class DeleteNoteEvent extends NotesEvent {
+  final int index;
+
+  const DeleteNoteEvent({required this.index});
+
+  @override
+  List<Object?> get props => [index];
+}
 
 class ChangeColorsEvent extends NotesEvent {}
 

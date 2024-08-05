@@ -16,7 +16,6 @@ class ConnectivityProvider extends ChangeNotifier {
 
   void checkConnectivity() async {
     var connectionResult = await _connectivity.checkConnectivity();
-    print('connectivityResult: ${connectionResult.toString()}');
     if (connectionResult.contains(ConnectivityResult.mobile)) {
       _status = 'Connected to MobileData';
       notifyListeners();
@@ -30,7 +29,6 @@ class ConnectivityProvider extends ChangeNotifier {
 
     _streamSubscription = _connectivity.onConnectivityChanged.listen(
       (List<ConnectivityResult> event) {
-        print('onConnectivityChanged >> ${event.first.toString()}');
         if (event.contains(ConnectivityResult.wifi) ||
             event.contains(ConnectivityResult.mobile)) {
           _status = 'Online';

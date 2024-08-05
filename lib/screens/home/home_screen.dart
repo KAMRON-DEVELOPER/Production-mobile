@@ -6,27 +6,20 @@ import 'package:mobile/utilities/validator.dart';
 import 'package:provider/provider.dart';
 import '../../bloc/profile/profile_bloc.dart';
 import '../../bloc/profile/profile_state.dart';
-import '../../provider/network_provider.dart';
 import '../../provider/theme_provider.dart';
 import '../../widgets/drawer_widget.dart';
-import '../../widgets/top_snack_bar.dart';
 
 class HomeScreen extends StatelessWidget {
-  final ConnectivityProvider? connectionStatus = ConnectivityProvider();
-  HomeScreen({super.key});
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    bool isOnline = false;
-    ConnectivityProvider connectivityProvider =
-        Provider.of<ConnectivityProvider>(context);
-    isOnline = connectivityProvider.status == 'Online';
     final theme = Provider.of<ThemeProvider>(context).currentTheme;
 
     return LayoutBuilder(
       builder: (context, constraints) {
         int screenWidth = constraints.maxWidth.floor();
-        int screenHeight = constraints.maxHeight.floor();
+        // int screenHeight = constraints.maxHeight.floor();
         double avatarBackSize = screenWidth * 0.32;
         double avatarSize = screenWidth * 0.32;
         double divide = screenWidth * 0.04;
@@ -36,61 +29,29 @@ class HomeScreen extends StatelessWidget {
           content: RefreshIndicator(
             onRefresh: () async {
               print("REFRESH...");
-              if (isOnline) {
-                context.read<ProfileBloc>().add(GetProfileEvent());
-              } else {
-                showTopSnackBar(
-                  context: context,
-                  message: "you aren't connected to internet!",
-                  backgroundColor: Colors.red,
-                  duration: const Duration(milliseconds: 3000),
-                );
-              }
-              return await Future.delayed(const Duration(seconds: 1));
+              context.read<ProfileBloc>().add(GetProfileEvent());
             },
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               child: BlocConsumer<ProfileBloc, ProfileState>(
                 listener: (context, state) {
                   if (state is ProfileStateLoading) {
-                    print('loading listener **** ()');
+                    print('LISTENER ProfileStateLoading');
                     if (state.mustRebuild == true) {
-                      print("must rebuild **** ture");
+                      print("LISTENER MUST REBUILD");
                       context.read<ProfileBloc>().add(GetProfileEvent());
                     }
                   } else if (state is ProfileStateSuccess) {
                     print(
-                        'success listener **** ${state.profileData.username}');
-                    showTopSnackBar(
-                      context: context,
-                      message: "profileData successfully loaded",
-                      backgroundColor: Colors.green,
-                      duration: const Duration(milliseconds: 3000),
-                    );
+                        'LISTENER ProfileStateSuccess ${state.profileData?.username}');
                   } else if (state is ProfileStateFailure) {
                     print(
-                        'failure listener **** ${state.profileFailureMessage}');
-                    showTopSnackBar(
-                      context: context,
-                      message: "Failed while fetching profileData",
-                      backgroundColor: Colors.red,
-                      duration: const Duration(milliseconds: 3000),
+                      'LISTENER ProfileStateFailure ${state.profileFailureMessage}',
                     );
                   }
                 },
                 builder: (context, state) {
-                  print('<<<<<<<< BUILDER >>>>>>>');
-                  print("screenWidth >> $screenWidth");
-                  print("screenHeight >> $screenHeight");
-                  if (state is ProfileStateLoading) {
-                    print('STATE IN BUILDER >>>> ${state.mustRebuild}');
-                    if (isOnline) {
-                      context.read<ProfileBloc>().add(GetProfileEvent());
-                    } else {
-                      context.read<ProfileBloc>().add(GetCacheProfileEvent());
-                    }
-                    return const CircularProgressIndicator();
-                  } else if (state is ProfileStateSuccess) {
+                  if (state is ProfileStateSuccess) {
                     return Container(
                       padding: const EdgeInsets.only(top: 40),
                       height: MediaQuery.of(context).size.height,
@@ -154,10 +115,12 @@ class HomeScreen extends StatelessWidget {
                                     radius: 2 * avatarSize,
                                     child: CachedNetworkImage(
                                       imageUrl:
-                                          "http://192.168.31.42:8000${state.profileData.photo}",
+                                          "http://192.168.31.42:8000${state.profileData?.photo}",
                                       fit: BoxFit.cover,
-                                      height: avatarSize.doubleCacheSize(context),
-                                      width: avatarSize.doubleCacheSize(context),
+                                      height:
+                                          avatarSize.doubleCacheSize(context),
+                                      width:
+                                          avatarSize.doubleCacheSize(context),
                                       memCacheHeight:
                                           avatarSize.cacheSize(context),
                                       memCacheWidth:
@@ -308,7 +271,7 @@ class HomeScreen extends StatelessWidget {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        "${state.profileData.fullName}",
+                                        "${state.profileData?.fullName}",
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: screenWidth * 0.05,
@@ -316,7 +279,7 @@ class HomeScreen extends StatelessWidget {
                                         ),
                                       ),
                                       Text(
-                                        "@${state.profileData.username}",
+                                        "@${state.profileData?.username}",
                                         style: TextStyle(
                                           color: Colors.blue.withOpacity(0.9),
                                           fontSize: screenWidth * 0.04,
@@ -333,7 +296,7 @@ class HomeScreen extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.only(left: 16, right: 16),
                             child: Text(
-                              "${state.profileData.bio}",
+                              "${state.profileData?.bio}",
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
@@ -344,12 +307,16 @@ class HomeScreen extends StatelessWidget {
                         ],
                       ),
                     );
+                  } else if (state is ProfileStateLoading) {
+                    print("message in ProfileStateLoading >> ${state.mustRebuild}");
+                    return const CircularProgressIndicator();
                   } else if (state is ProfileStateFailure) {
+                    print("message in profileFailure >> ${state.profileFailureMessage}");
                     return Text(
                       state.profileFailureMessage,
                       style: const TextStyle(
                         color: Colors.red,
-                        fontSize: 12,
+                        fontSize: 36,
                       ),
                     );
                   } else {

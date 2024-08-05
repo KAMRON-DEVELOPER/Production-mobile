@@ -18,7 +18,7 @@ class ProfileStateLoading extends ProfileState {
 }
 
 class ProfileStateSuccess extends ProfileState {
-  final User profileData;
+  final User? profileData;
 
   const ProfileStateSuccess({required this.profileData});
 

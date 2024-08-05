@@ -1,91 +1,129 @@
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hive/hive.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:mobile/bloc/profile/profile_event.dart';
 import 'package:mobile/bloc/profile/profile_state.dart';
-import 'package:mobile/hive/profile_model.dart';
+import 'package:mobile/models/user.dart';
+import 'package:mobile/provider/data_provider.dart';
 import 'package:mobile/services/auth_api.dart';
-import '../../models/user.dart';
+import '../connectivity/connectivity_bloc.dart';
+import '../connectivity/connectivity_state.dart';
 
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
-  ProfileBloc() : super(const ProfileStateLoading()) {
+  final ConnectivityBloc connectivityBloc;
+  late StreamSubscription connectivitySubscription;
+
+  late DataRepository dataRepository;
+  late AuthApiService authApiService;
+
+  ProfileBloc({required this.connectivityBloc})
+      : super(const ProfileStateLoading()) {
     on<GetProfileEvent>(_getProfileEvent);
-    on<GetCacheProfileEvent>(_getCacheProfileEvent);
+    on<GetCashedProfileEvent>(_getCachedProfileEvent);
+    on<UpdateProfileEvent>(
+      (event, emit) {
+        _updateProfileEvent(event, emit, event.updateData);
+      },
+    );
+    authApiService = AuthApiService();
+    dataRepository = DataRepository();
+
+    listenToConnectivityBloc();
   }
 
-  final AuthApiService authApiService = AuthApiService();
-  final settingsBox = Hive.box('settingsBox');
-  final profileBox = Hive.box<ProfileModel>('profileBox');
-
-  void _getCacheProfileEvent(ProfileEvent event, Emitter<ProfileState> emit) {
-    final ProfileModel? profileData = profileBox.get('profileData');
-    if (profileData != null) {
-      final User user = User.fromProfileModel(profileData);
-      emit(ProfileStateSuccess(profileData: user));
-    } else {
-      emit(const ProfileStateFailure(
-          profileFailureMessage: 'No profile data available offline'));
-    }
+  void listenToConnectivityBloc() {
+    connectivitySubscription = connectivityBloc.stream.listen(
+      (state) {
+        if (state is ConnectivitySuccess) {
+          add(GetProfileEvent());
+        } else if (state is ConnectivityFailure) {
+          add(GetCashedProfileEvent());
+        }
+      },
+    );
   }
 
-  void _getProfileEvent(
-      ProfileEvent event, Emitter<ProfileState> emit) async {
-    String? accessToken = await settingsBox.get('accessToken');
-    String? refreshToken = await settingsBox.get('refreshToken');
-    bool isAuthenticated =
-        await settingsBox.get('isAuthenticated', defaultValue: false);
-    print(
-        '1) accessToken >>>> $accessToken, refreshToken >> $refreshToken, isAuthenticated >>>> $isAuthenticated');
-
-    bool hasExpiredAccessToken = true;
-    bool hasExpiredRefreshToken = true;
-    if (accessToken != null && refreshToken != null) {
-      hasExpiredAccessToken = JwtDecoder.isExpired(accessToken);
-      hasExpiredRefreshToken = JwtDecoder.isExpired(refreshToken);
-    }
-    print('2) hasExpiredAccessToken >>>> $hasExpiredAccessToken');
-
-    if (!isAuthenticated ||
-        hasExpiredRefreshToken ||
-        accessToken == null && refreshToken == null) {
-      print('3) isAuthenticated >>>> false');
+  Future<void> _getCachedProfileEvent(ProfileEvent event, Emitter<ProfileState> emit) async {
+    try {
+      User? profile = await dataRepository.getProfile();
+      print('profile _getCacheProfileEvent >> $profile');
+      if (profile != null) {
+        emit(ProfileStateSuccess(profileData: profile));
+      } else {
+        emit(
+          const ProfileStateFailure(
+              profileFailureMessage: "No cached your data available",
+          ),
+        );
+      }
+    } catch (e) {
       emit(
-        const ProfileStateFailure(
-            profileFailureMessage: "you need to register or login???"),
+        ProfileStateFailure(
+            profileFailureMessage: "catch _getCachedProfileEvent >> $e",
+        ),
       );
-    } else if (hasExpiredAccessToken && !hasExpiredRefreshToken) {
-      print(
-          '3) hasExpiredAccessToken >>>> true, hasExpiredRefreshToken >>>> false');
-      final User? tokens =
-          await authApiService.fetchToken(refreshToken: refreshToken);
-      print('4) tokens >>>> $tokens');
-      if (tokens != null) {
-        await settingsBox.putAll({
-          "accessToken": tokens.accessToken,
-          "refreshToken": tokens.refreshToken,
-        });
-        emit(const ProfileStateLoading(mustRebuild: true));
+    }
+  }
+
+  Future<void> _getProfileEvent(ProfileEvent event, Emitter<ProfileState> emit) async {
+    try {
+      bool isAuthenticated = await dataRepository.getIsAuthenticated();
+      if (isAuthenticated) {
+        String? access = await dataRepository.getAccessToken();
+        User? profile =
+            await authApiService.fetchUserProfile(accessToken: access);
+        await dataRepository.setProfile(profile);
+        print('isAuthenticated >>>> true, profile >> $profile');
+        emit(ProfileStateSuccess(profileData: profile));
       } else {
         emit(
           const ProfileStateFailure(
-              profileFailureMessage: "token fetching failed???"),
+              profileFailureMessage: "You are not authenticated!",
+          ),
         );
       }
-    } else if (isAuthenticated) {
-      print('3) isAuthenticated >>>> true');
-      final User? user =
-          await authApiService.fetchUserProfile(accessToken: accessToken);
-      print('4) profileData >>>> ${user?.username}');
-      if (user != null) {
-        // await profileBox.delete('profileData');
-        await profileBox.put('profileData', ProfileModel.fromUserModel(user));
-        emit(ProfileStateSuccess(profileData: user));
+    } catch (e) {
+      emit(
+        ProfileStateFailure(
+            profileFailureMessage: "catch _getProfileEvent catch $e"),
+      );
+    }
+  }
+
+  Future<void> _updateProfileEvent(ProfileEvent event, Emitter<ProfileState> emit, User? updateData) async {
+    try {
+      bool isAuthenticated = await dataRepository.getIsAuthenticated();
+      if (isAuthenticated) {
+        String? access = await dataRepository.getAccessToken();
+        bool isUpdated = await authApiService.fetchUpdateUserProfile(
+          accessToken: access,
+          updateData: updateData,
+        );
+        print('_updateProfileEvent isUpdated >> $isUpdated');
+        if (isUpdated) {
+          User? profileData = await dataRepository.getProfile();
+          emit(ProfileStateSuccess(profileData: profileData));
+        } else {
+          print('your data not updated >> _updateProfileEvent');
+          emit(
+            const ProfileStateFailure(
+              profileFailureMessage: "Your data not updated",
+            ),
+          );
+        }
       } else {
         emit(
           const ProfileStateFailure(
-              profileFailureMessage: 'Load profile data failed???'),
+            profileFailureMessage:
+                "You are not authenticated. Please, login or register",
+          ),
         );
       }
+    } catch (e) {
+      emit(
+        ProfileStateFailure(
+          profileFailureMessage: "catch _updateProfileEvent >> $e",
+        ),
+      );
     }
   }
 }

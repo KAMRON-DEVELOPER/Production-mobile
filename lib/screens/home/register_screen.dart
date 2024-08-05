@@ -96,9 +96,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Column(
                       children: [
                         TextFormField(
-                          onChanged: (value) {
+                          onChanged: (value) async {
                             usernameError =
-                                registerUsernameValidator(value.trim());
+                                await registerUsernameValidator(value.trim());
                             setState(() {});
                           },
                           controller: _usernameController,
@@ -116,9 +116,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 20),
                         TextFormField(
-                          onChanged: (value) {
+                          onChanged: (value) async {
                             emailOrPhoneError =
-                                realtimeEmailOrPhoneValidator(value.trim());
+                                await realtimeEmailOrPhoneValidator(value.trim());
                             setState(() {});
                           },
                           controller: _emailOrPhoneController,

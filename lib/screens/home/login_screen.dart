@@ -97,9 +97,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       children: [
                         TextFormField(
-                          onChanged: (value) {
+                          onChanged: (value) async {
                             usernameError =
-                                loginUsernameValidator(value.trim());
+                                await loginUsernameValidator(value.trim());
                             setState(() {});
                           },
                           controller: _usernameController,

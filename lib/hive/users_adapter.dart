@@ -1,21 +1,21 @@
 import 'package:hive/hive.dart';
-import 'package:mobile/hive/users_model.dart';
+import 'package:mobile/models/users.dart';
 
-class UsersAdapter extends TypeAdapter<UsersModel> {
+class UsersAdapter extends TypeAdapter<Users> {
   @override
   final int typeId = 0;
 
   @override
-  UsersModel read(BinaryReader reader) {
-    final username = reader.read();
+  Users read(BinaryReader reader) {
+    final String? username = reader.read();
     final String? email = reader.read();
     final String? phoneNumber = reader.read();
 
-    return UsersModel(username: username, email: email, phoneNumber: phoneNumber);
+    return Users(username: username, email: email, phoneNumber: phoneNumber);
   }
 
   @override
-  void write(BinaryWriter writer, UsersModel obj) {
+  void write(BinaryWriter writer, Users obj) {
     writer.write(obj.username);
     writer.write(obj.email);
     writer.write(obj.phoneNumber);

@@ -1,86 +1,217 @@
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hive/hive.dart';
-import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:mobile/bloc/notes/notes_event.dart';
 import 'package:mobile/bloc/notes/notes_state.dart';
-import 'package:mobile/hive/note_model.dart';
-import 'package:mobile/hive/profile_model.dart';
+import 'package:mobile/provider/data_provider.dart';
 import 'package:mobile/services/notes_api.dart';
-
 import '../../models/note.dart';
-import '../../models/user.dart';
 import '../../services/auth_api.dart';
+import '../connectivity/connectivity_bloc.dart';
+import '../connectivity/connectivity_state.dart';
 
 class NotesBloc extends Bloc<NotesEvent, NotesState> {
-  NotesBloc() : super(const NotesStateLoading()) {
+  final ConnectivityBloc connectivityBloc;
+  late StreamSubscription connectivitySubscription;
+
+  late DataRepository dataRepository;
+  late AuthApiService authApiService;
+  late NoteApiService noteApiService;
+  NotesBloc({required this.connectivityBloc}) : super(const NotesStateLoading()) {
     on<GetNotesEvent>(_getNotesEvent);
-    on<GetCacheNotesEvent>(_getCacheNotesEvent);
+    on<GetCachedNotesEvent>(_getCacheNotesEvent);
+    on<ChangeNotesCategoryEvent>((event, emit) => _changeNotesCategoryEvent(event, emit, event.notesFormData),);
+    on<CreateNoteEvent>((event, emit) => _createNoteEvent(event, emit, event.noteFormData),);
+    on<UpdateNoteEvent>((event, emit) => _updateNoteEvent(event, emit, event.index, event.noteFormData),);
+    on<DeleteNoteEvent>((event, emit) => _deleteNoteEvent(event, emit, event.index),);
+
+    dataRepository = DataRepository();
+    authApiService = AuthApiService();
+    noteApiService = NoteApiService();
+
+    listenToConnectivityBloc();
   }
 
-  final NoteApiService noteApiService = NoteApiService();
-  final AuthApiService authApiService = AuthApiService();
-  final notesBox = Hive.box<NoteModel>('notesBox');
-  final settingsBox = Hive.box('settingsBox');
-  final profileBox = Hive.box<ProfileModel>('profileBox');
+  void listenToConnectivityBloc() {
+    connectivitySubscription = connectivityBloc.stream.listen(
+          (state) {
+        if (state is ConnectivitySuccess) {
+          add(GetNotesEvent());
+        } else if (state is ConnectivityFailure) {
+          add(GetCachedNotesEvent());
+        }
+      },
+    );
+  }
 
-  Future<void> _getCacheNotesEvent(
-      NotesEvent event, Emitter<NotesState> emit) async {}
+  void _getCacheNotesEvent(NotesEvent event, Emitter<NotesState> emit) async {
+    try {
+      List<Note?> notes = await dataRepository.getNotes();
+      if (notes.isNotEmpty) {
+        emit(NotesStateSuccess(notesData: notes));
+      } else {
+        emit(
+          const NotesStateFailure(
+            notesFailureMessage: "No cached notes available",
+          ),
+        );
+      }
+    } catch (e) {
+      print("catch _getCacheNotesEvent >> $e");
+      emit(
+        const NotesStateFailure(
+          notesFailureMessage: "something went wrong in _getCacheNotesEvent",
+        ),
+      );
+    }
+  }
 
   void _getNotesEvent(NotesEvent event, Emitter<NotesState> emit) async {
-    String? accessToken = await settingsBox.get('accessToken');
-    String? refreshToken = await settingsBox.get('refreshToken');
-    bool isAuthenticated =
-        await settingsBox.get('isAuthenticated', defaultValue: false);
-    print(
-        'access >>>> $accessToken, refresh >> $refreshToken, isAuthenticated >>>> $isAuthenticated');
-
-    bool hasExpiredAccessToken = true;
-    bool hasExpiredRefreshToken = true;
-    if (accessToken != null && refreshToken != null) {
-      hasExpiredAccessToken = JwtDecoder.isExpired(accessToken);
-      hasExpiredRefreshToken = JwtDecoder.isExpired(refreshToken);
+    try {
+      bool isAuthenticated = await dataRepository.getIsAuthenticated();
+      if (isAuthenticated) {
+        String? access = await dataRepository.getAccessToken();
+        List<Note?>? notes =
+            await noteApiService.fetchNotes(accessToken: access);
+        bool isNoteSavedLocale = await dataRepository.setNotes(notes!);
+        if (isNoteSavedLocale) {
+          emit(NotesStateSuccess(notesData: notes));
+        } else {
+          emit(
+            const NotesStateFailure(
+              notesFailureMessage: "Notes couldn't saved to locale",
+            ),
+          );
+        }
+      } else {
+        emit(
+          const NotesStateFailure(
+            notesFailureMessage: "User is not authenticated",
+          ),
+        );
+      }
+    } catch (e) {
+      print("catch _getNotesEvent >> $e");
+      emit(
+          const NotesStateFailure(
+            notesFailureMessage: "something went wrong in _getNotesEvent",
+          ),
+      );
     }
-    print('hasExpiredAccessToken >>>> $hasExpiredAccessToken');
+  }
 
-    if (!isAuthenticated ||
-        hasExpiredRefreshToken ||
-        accessToken == null && refreshToken == null) {
-      print('3) isAuthenticated >>>> false');
-      emit(const NotesStateFailure(
-          notesFailureMessage: "you are not authenticated"));
-    } else if (hasExpiredAccessToken && !hasExpiredRefreshToken) {
-      print(
-          '3) hasExpiredAccessToken >>>> true, hasExpiredRefreshToken >>>> false');
-      final User? tokens =
-          await authApiService.fetchToken(refreshToken: refreshToken);
-      print('4) tokens >>>> $tokens');
-      if (tokens != null) {
-        await settingsBox.putAll({
-          "accessToken": tokens.accessToken,
-          "refreshToken": tokens.refreshToken,
-        });
-        emit(const NotesStateLoading(mustRebuild: true));
+  void _changeNotesCategoryEvent(NotesEvent event, Emitter<NotesState> emit, List<Note?> notesFormData) async {
+    try {
+
+      emit(const NotesStateLoading(mustRebuild: true));
+    } catch (e) {
+      print("catch _changeNoteOrderEvent >> $e");
+      emit(
+        const NotesStateFailure(
+          notesFailureMessage: "couldn't changed note order",
+        ),
+      );
+    }
+  }
+
+  void _createNoteEvent(NotesEvent event, Emitter<NotesState> emit, Note? noteFormData) async {
+    try {
+      String? accessToken = await dataRepository.getAccessToken();
+      Note? newNote = await noteApiService.fetchCreateNote(
+        accessToken: accessToken,
+        note: noteFormData,
+      );
+      if (newNote != null) {
+        bool isNoteSavedLocale = await dataRepository.addNote(newNote);
+        if (isNoteSavedLocale) {
+          emit(const NotesStateLoading(mustRebuild: true));
+        } else {
+          emit(
+            const NotesStateFailure(
+              notesFailureMessage: "note couldn't save in locale",
+            ),
+          );
+        }
       } else {
         emit(
           const NotesStateFailure(
-              notesFailureMessage: "token fetching failed???"),
+            notesFailureMessage: "note couldn't created in server",
+          ),
         );
       }
-    } else if (isAuthenticated) {
-      print('3) isAuthenticated >>>> true');
-      final List<Note?> notes =
-          await noteApiService.fetchNotes(accessToken: accessToken);
-      print('profileData >>>> ${notes.first?.body}');
-      if (notes != []) {
-        notes.map((note) async =>
-            await notesBox.put('notesData', NoteModel.fromNote(note!)));
-        emit(NotesStateSuccess(notesData: notes as List<Map<String, dynamic>>));
+    } catch (e) {
+      print("catch _createNoteEvent >> $e");
+      emit(
+        const NotesStateFailure(
+          notesFailureMessage: "something went wrong in _createNoteEvent",
+        ),
+      );
+    }
+  }
+
+  void _updateNoteEvent(NotesEvent event, Emitter<NotesState> emit, int index, Note? noteFormData) async {
+    try {
+      String? id = dataRepository.notesBox.getAt(index)?.id;
+      String? accessToken = await dataRepository.getAccessToken();
+      bool isUpdated = await noteApiService.fetchUpdateNote(
+        accessToken: accessToken,
+        id: id,
+        note: noteFormData,
+      );
+      if (isUpdated) {
+        bool isUpdatedLocal = await dataRepository.updateNotes(index, noteFormData);
+        if (isUpdatedLocal) {
+          emit(const NotesStateLoading(mustRebuild: true));
+        } else {
+          emit(const NotesStateFailure(notesFailureMessage: "note couldn't updated in locale"));
+        }
       } else {
         emit(
           const NotesStateFailure(
-              notesFailureMessage: 'Load notes data failed???'),
+            notesFailureMessage: "note couldn't updated in server",
+          ),
         );
       }
+    } catch (e) {
+      print("catch _updateNoteEvent >> $e");
+      emit(
+        const NotesStateFailure(
+          notesFailureMessage: "something went wrong in _updateNoteEvent",
+        ),
+      );
+    }
+  }
+
+  void _deleteNoteEvent(NotesEvent event, Emitter<NotesState> emit, int index) async {
+    try {
+      Note? victimNote = dataRepository.notesBox.getAt(index);
+      String? accessToken = await dataRepository.getAccessToken();
+      bool isDeleted = await noteApiService.fetchDeleteNote(accessToken: accessToken, id: victimNote?.id);
+      print('isDeleted _deleteNoteEvent >> $isDeleted');
+      if (isDeleted) {
+        bool isDeletedLocale = await dataRepository.deleteNotes(index);
+        if (isDeletedLocale) {
+          emit(const NotesStateLoading(mustRebuild: true));
+        } else {
+          emit(
+            const NotesStateFailure(
+              notesFailureMessage: "note couldn't deleted in locale",
+            ),
+          );
+        }
+      } else {
+        emit(
+          const NotesStateFailure(
+            notesFailureMessage: "note couldn't deleted in server",
+          ),
+        );
+      }
+    } catch (e) {
+      print("catch _deleteTabEvent >> $e");
+      emit(
+        const NotesStateFailure(
+          notesFailureMessage: "something went wrong in _deleteTabEvent",
+        ),
+      );
     }
   }
 }

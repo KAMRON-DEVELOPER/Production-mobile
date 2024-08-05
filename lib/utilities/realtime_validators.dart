@@ -1,35 +1,35 @@
-import 'package:hive/hive.dart';
+import 'package:mobile/provider/data_provider.dart';
 import 'package:mobile/utilities/validator.dart';
-import '../hive/users_model.dart';
+import '../models/users.dart';
 
-final usersBox = Hive.box<UsersModel>('usersBox');
-final emails = usersBox.values
-    .where((user) => user.email != null)
-    .map((user) => user.email)
-    .toList();
-final phoneNumbers = usersBox.values
-    .where((user) => user.phoneNumber != null)
-    .map((user) => user.phoneNumber)
-    .toList();
+DataRepository dataRepository =
+    DataRepository();
 
-String? registerUsernameValidator(String value) {
-  return usersBox.values.any((user) => user.username == value)
+Future<String?> registerUsernameValidator(String value) async {
+  List<Users?> users = await dataRepository.getUsers();
+  List<String?> usernames = users.map((userObj) => userObj?.username).toList();
+  return usernames.contains(value)
       ? 'Oops, the username is already in use'
       : value.isValidName;
 }
 
-String? loginUsernameValidator(String value) {
-  usersBox.values.map((user) => print("user.username: ${user.username}"));
-  return usersBox.values.any((user) => user.username == value)
-      ? value.isValidName
-      : 'Username not found';
+Future<String?> loginUsernameValidator(String value) async {
+  List<Users?> users = await dataRepository.getUsers();
+  List<String?> usernames = users.map((userObj) => userObj?.username).toList();
+  // print("VALUE * $value, VALUE>LENGTH * ${value.length}");
+  // print("VALUE * $value, VALUE>LENGTH * ${value.length}");
+  return usernames.contains(value) ? value.isValidName : 'Username not found';
 }
 
 String? realtimePasswordValidator(String value) {
   return value.isValidPassword;
 }
 
-String? realtimeEmailOrPhoneValidator(String value) {
+Future<String?> realtimeEmailOrPhoneValidator(String value) async {
+  List<Users?> users = await dataRepository.getUsers();
+  List<String?> phoneNumbers =
+      users.map((userObj) => userObj?.phoneNumber).toList();
+  List<String?> emails = users.map((userObj) => userObj?.email).toList();
   if (value.startsWith('+') && phoneNumbers.contains(value)) {
     return "Oops, this phone number is already in use";
   } else if (value.startsWith(RegExp(r'^[a-zA-Z0-9]')) &&
