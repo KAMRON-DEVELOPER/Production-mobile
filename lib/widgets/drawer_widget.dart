@@ -19,7 +19,7 @@ Widget buildDrawerWidget({
     backgroundColor: theme.background2,
     appBar: buildAppBar(context, appBarTitle),
     body: Stack(
-      clipBehavior: Clip.none,
+      clipBehavior: Clip.hardEdge,
       children: [
         Positioned.fill(child: content),
         const CustomTabBar(),

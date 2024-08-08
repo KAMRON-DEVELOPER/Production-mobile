@@ -8,13 +8,17 @@ import 'package:provider/provider.dart';
 import '../bloc/tabs/tabs_state.dart';
 import '../provider/theme_provider.dart';
 
-class CustomTabBar extends StatelessWidget {
+class CustomTabBar extends StatefulWidget {
   const CustomTabBar({super.key});
 
   @override
+  State<CustomTabBar> createState() => _CustomTabBarState();
+}
+
+class _CustomTabBarState extends State<CustomTabBar> {
+  @override
   Widget build(BuildContext context) {
     final theme = Provider.of<ThemeProvider>(context).currentTheme;
-
 
     return BlocProvider(
       create: (context) => TabsBloc(
@@ -27,7 +31,8 @@ class CustomTabBar extends StatelessWidget {
           } else if (state is TabsStateSuccess) {
             print("LISTENER STATE ** TabsStateSuccess ${state.tabs}");
           } else if (state is TabsStateFailure) {
-            print("LISTENER STATE ** TabsStateFailure ${state.tabsFailureMessage}");
+            print(
+                "LISTENER STATE ** TabsStateFailure ${state.tabsFailureMessage}");
           }
         },
         builder: (context, state) {
@@ -54,6 +59,16 @@ class CustomTabBar extends StatelessWidget {
                   ),
                   scrollDirection: Axis.horizontal,
                   onReorder: (oldIndex, newIndex) {
+                    setState(() {
+                      if (newIndex > oldIndex) {
+                        newIndex--;
+                      }
+
+                      List<MyTab?> tabs = state.tabs;
+                      MyTab? item = tabs.removeAt(oldIndex);
+                      tabs.insert(newIndex, item);
+                    });
+
                     context.read<TabsBloc>().add(
                           ChangeTabOrderEvent(
                             oldIndex: oldIndex,
@@ -66,9 +81,11 @@ class CustomTabBar extends StatelessWidget {
                     key: ValueKey(index),
                     onTap: () => Navigator.pushNamed(
                         context, "/home/${state.tabs[index]!.name}"),
-                    onLongPress: () {
-                      context.read<TabsBloc>().add(TabMenuOpenEvent(index: index));
-                    },
+                    // onLongPress: () {
+                    //   context
+                    //       .read<TabsBloc>()
+                    //       .add(TabMenuOpenEvent(index: index));
+                    // },
                     child: Container(
                       alignment: Alignment.center,
                       padding: const EdgeInsets.fromLTRB(16, 2, 16, 2),
@@ -78,31 +95,12 @@ class CustomTabBar extends StatelessWidget {
                             ? theme.background3
                             : theme.activeTabColor,
                       ),
-                      child: Stack(
-                        clipBehavior: Clip.antiAlias,
-                        children: [
-                          Text(
-                            "${state.tabs[index]!.name}",
-                            style: TextStyle(
-                              color: theme.text1,
-                            ),
-                          ),
-                          Positioned(
-                            bottom: -65,
-                            width: 40,
-                            height: 60,
-                            child: Container(
-                              width: 40,
-                              height: 60,
-                              decoration: BoxDecoration(
-                                color: Colors.black45,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: const Text("menu"),
-                            ),
-                          ),
-                        ],
-                      )
+                      child: Text(
+                        "${state.tabs[index]!.name}",
+                        style: TextStyle(
+                          color: theme.text1,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -144,11 +142,12 @@ class CustomTabBar extends StatelessWidget {
                   itemCount: tabs.length,
                   onReorder: (oldIndex, newIndex) {
                     context.read<TabsBloc>().add(
-                        ChangeTabOrderEvent(oldIndex: oldIndex, newIndex: newIndex),
-                    );
+                          ChangeTabOrderEvent(
+                              oldIndex: oldIndex, newIndex: newIndex),
+                        );
                   },
                   itemBuilder: (context, index) => Draggable<GestureDetector>(
-
+                    key: ValueKey(index),
                     data: GestureDetector(
                       key: ValueKey(index),
                       onTap: () => Navigator.pushNamed(
@@ -158,9 +157,7 @@ class CustomTabBar extends StatelessWidget {
                         padding: const EdgeInsets.fromLTRB(16, 2, 16, 2),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(6),
-                          color: index != 0
-                              ? Colors.redAccent
-                              : Colors.red,
+                          color: index != 0 ? Colors.redAccent : Colors.red,
                         ),
                         child: Text(
                           "${tabs[index]!.name}",
@@ -179,9 +176,8 @@ class CustomTabBar extends StatelessWidget {
                         padding: const EdgeInsets.fromLTRB(16, 2, 16, 2),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(6),
-                          color: index != 0
-                              ? Colors.orangeAccent
-                              : Colors.orange,
+                          color:
+                              index != 0 ? Colors.orangeAccent : Colors.orange,
                         ),
                         child: Text(
                           "${tabs[index]!.name}",

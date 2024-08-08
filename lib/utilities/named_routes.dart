@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/screens/screens.dart';
 
 final Map<String, Widget Function(BuildContext)> namedRoutes = {
-  '/home': (context) => HomeScreen(),
+  '/home': (context) => const HomeScreen(),
   '/home/notes': (context) => const NotesScreen(),
   '/home/register': (context) => const RegisterScreen(),
   '/home/login': (context) => const LoginScreen(),
